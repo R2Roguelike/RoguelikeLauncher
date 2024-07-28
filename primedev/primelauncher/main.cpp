@@ -121,11 +121,11 @@ void LibraryLoadError(DWORD dwMessageId, const wchar_t* libName, const wchar_t* 
 		sprintf_s(
 			text,
 			"%s\n\nTitanfall2.exe has been found in the current directory: is the game installation corrupted or did you not unpack all "
-			"Northstar files here?",
+			"Roguelike files here?",
 			text);
 	}
 
-	MessageBoxA(GetForegroundWindow(), text, "Northstar Launcher Error", 0);
+	MessageBoxA(GetForegroundWindow(), text, "Roguelike Launcher Error", 0);
 }
 
 void AwaitOriginStartup()
@@ -173,7 +173,7 @@ void EnsureOriginStarted()
 	HKEY key;
 	if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "SOFTWARE\\WOW6432Node\\Origin", 0, KEY_READ, &key) != ERROR_SUCCESS)
 	{
-		MessageBoxA(0, "Error: failed reading Origin path!", "Northstar Launcher Error", MB_OK);
+		MessageBoxA(0, "Error: failed reading Origin path!", "Roguelike Launcher Error", MB_OK);
 		return;
 	}
 
@@ -181,7 +181,7 @@ void EnsureOriginStarted()
 	DWORD originPathLength = 520;
 	if (RegQueryValueExA(key, "ClientPath", 0, 0, (LPBYTE)&originPath, &originPathLength) != ERROR_SUCCESS)
 	{
-		MessageBoxA(0, "Error: failed reading Origin path!", "Northstar Launcher Error", MB_OK);
+		MessageBoxA(0, "Error: failed reading Origin path!", "Roguelike Launcher Error", MB_OK);
 		return;
 	}
 
@@ -236,7 +236,7 @@ void PrependPath()
 				GetForegroundWindow(),
 				L"Warning: could not prepend the current directory to app's PATH environment variable. Something may break because of "
 				L"that.",
-				L"Northstar Launcher Warning",
+				L"Roguelike Launcher Warning ",
 				0);
 		}
 		free(pPath);
@@ -247,24 +247,24 @@ void PrependPath()
 			GetForegroundWindow(),
 			L"Warning: could not get current PATH environment variable in order to prepend the current directory to it. Something may "
 			L"break because of that.",
-			L"Northstar Launcher Warning",
+			L"Roguelike Launcher Warning",
 			0);
 	}
 }
 
-bool ShouldLoadNorthstar(int argc, char* argv[])
+bool ShouldLoadRoguelike(int argc, char* argv[])
 {
 	for (int i = 0; i < argc; i++)
-		if (!strcmp(argv[i], "-nonorthstardll"))
+		if (!strcmp(argv[i], "-noroguelikedll"))
 			return false;
 
-	auto runNorthstarFile = std::ifstream("run_northstar.txt");
-	if (runNorthstarFile)
+	auto runRoguelikeFile = std::ifstream("run_roguelike.txt");
+	if (runRoguelikeFile)
 	{
-		std::stringstream runNorthstarFileBuffer;
-		runNorthstarFileBuffer << runNorthstarFile.rdbuf();
-		runNorthstarFile.close();
-		if (runNorthstarFileBuffer.str().starts_with("0"))
+		std::stringstream runRoguelikeFileBuffer;
+		runRoguelikeFileBuffer << runRoguelikeFile.rdbuf();
+		runRoguelikeFile.close();
+		if (runRoguelikeFileBuffer.str().starts_with("0"))
 			return false;
 	}
 	return true;
@@ -274,7 +274,7 @@ bool LoadNorthstar()
 {
 	FARPROC Hook_Init = nullptr;
 	{
-		std::string strProfile = "R2Northstar";
+		std::string strProfile = "R2Roguelike";
 		char* clachar = strstr(GetCommandLineA(), "-profile=");
 		if (clachar)
 		{
@@ -298,24 +298,24 @@ bool LoadNorthstar()
 		}
 		else
 		{
-			std::cout << "[*] Profile was not found in command line arguments. Using default: R2Northstar" << std::endl;
-			strProfile = "R2Northstar";
+			std::cout << "[*] Profile was not found in command line arguments. Using default: R2Roguelike" << std::endl;
+			strProfile = "R2Roguelike";
 		}
 
-		// Check if "Northstar.dll" exists in profile directory, if it doesnt fall back to root
-		swprintf_s(buffer, L"%s\\%s\\Northstar.dll", exePath, std::wstring(strProfile.begin(), strProfile.end()).c_str());
+		// Check if "Roguelike.dll" exists in profile directory, if it doesnt fall back to root
+		swprintf_s(buffer, L"%s\\%s\\Roguelike.dll", exePath, std::wstring(strProfile.begin(), strProfile.end()).c_str());
 
 		if (!fs::exists(fs::path(buffer)))
-			swprintf_s(buffer, L"%s\\Northstar.dll", exePath);
+			swprintf_s(buffer, L"%s\\Roguelike.dll", exePath);
 
 		std::wcout << L"[*] Using: " << buffer << std::endl;
 
 		hHookModule = LoadLibraryExW(buffer, 0, 8u);
 		if (hHookModule)
-			Hook_Init = GetProcAddress(hHookModule, "InitialiseNorthstar");
+			Hook_Init = GetProcAddress(hHookModule, "InitialiseRoguelike");
 		if (!hHookModule || Hook_Init == nullptr)
 		{
-			LibraryLoadError(GetLastError(), L"Northstar.dll", buffer);
+			LibraryLoadError(GetLastError(), L"Roguelike.dll", buffer);
 			return false;
 		}
 	}
@@ -362,58 +362,17 @@ int main(int argc, char* argv[])
 	SetCurrentDirectoryW(exePath);
 
 	bool noOriginStartup = false;
-	bool dedicated = false;
 	bool nostubs = false;
 
 	for (int i = 0; i < argc; i++)
 		if (!strcmp(argv[i], "-noOriginStartup"))
 			noOriginStartup = true;
-		else if (!strcmp(argv[i], "-dedicated")) // also checked by Northstar.dll
-			dedicated = true;
 		else if (!strcmp(argv[i], "-nostubs"))
 			nostubs = true;
 
-	if (!noOriginStartup && !dedicated)
+	if (!noOriginStartup)
 	{
 		EnsureOriginStarted();
-	}
-
-	if (dedicated && !nostubs)
-	{
-		std::cout << "[*] Loading stubs" << std::endl;
-		HMODULE gssao, gtxaa, d3d11;
-		if (!(gssao = GetModuleHandleA("GFSDK_SSAO.win64.dll")) && !(gtxaa = GetModuleHandleA("GFSDK_TXAA.win64.dll")) &&
-			!(d3d11 = GetModuleHandleA("d3d11.dll")))
-		{
-			if (!(gssao = LoadDediStub("GFSDK_SSAO.win64.dll")) || !(gtxaa = LoadDediStub("GFSDK_TXAA.win64.dll")) ||
-				!(d3d11 = LoadDediStub("d3d11.dll")))
-			{
-				if ((!gssao || FreeLibrary(gssao)) && (!gtxaa || FreeLibrary(gtxaa)) && (!d3d11 || FreeLibrary(d3d11)))
-				{
-					std::cout << "[*] WARNING: Failed to load d3d11/gfsdk stubs from bin/x64_dedi. "
-								 "The stubs have been unloaded and the original libraries will be used instead"
-							  << std::endl;
-				}
-				else
-				{
-					// this is highly unlikely
-					MessageBoxA(
-						GetForegroundWindow(),
-						"Failed to load one or more stubs, but could not unload them either.\n"
-						"The game cannot continue and has to exit.",
-						"Northstar Launcher Error",
-						0);
-					return 1;
-				}
-			}
-		}
-		else
-		{
-			// this should never happen
-			std::cout << "[*] WARNING: Failed to load stubs because conflicting modules are already loaded, so those will be used instead "
-						 "(did Northstar initialize too late?)."
-					  << std::endl;
-		}
 	}
 
 	{
@@ -443,7 +402,7 @@ int main(int argc, char* argv[])
 			return 1;
 		}
 
-		bool loadNorthstar = ShouldLoadNorthstar(argc, argv);
+		bool loadNorthstar = ShouldLoadRoguelike(argc, argv);
 		if (loadNorthstar)
 		{
 			std::cout << "[*] Loading Northstar" << std::endl;

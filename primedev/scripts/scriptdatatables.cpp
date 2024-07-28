@@ -1,7 +1,6 @@
 #include "squirrel/squirrel.h"
 #include "core/filesystem/rpakfilesystem.h"
 #include "core/convar/convar.h"
-#include "dedicated/dedicated.h"
 #include "core/filesystem/filesystem.h"
 #include "core/math/vector.h"
 #include "core/tier0.h"
@@ -865,7 +864,7 @@ ON_DLL_LOAD_RELIESON("engine.dll", SharedScriptDataTables, ConVar, (CModule modu
 {
 	Cvar_ns_prefer_datatable_from_disk = new ConVar(
 		"ns_prefer_datatable_from_disk",
-		IsDedicatedServer() && CommandLine()->CheckParm("-nopakdedi") ? "1" : "0",
+		"0",
 		FCVAR_NONE,
 		"whether to prefer loading datatables from disk, rather than rpak");
 

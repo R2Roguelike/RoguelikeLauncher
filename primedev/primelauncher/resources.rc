@@ -53,7 +53,7 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_ICON1               ICON                    "ns_icon.ico"
+IDI_ICON1               ICON                    "roguelike_icon.ico"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -62,8 +62,8 @@ IDI_ICON1               ICON                    "ns_icon.ico"
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION NORTHSTAR_VERSION
- PRODUCTVERSION NORTHSTAR_VERSION
+ FILEVERSION ROGUELIKE_VERSION
+ PRODUCTVERSION ROGUELIKE_VERSION
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -79,11 +79,11 @@ BEGIN
         BLOCK "080904b0"
         BEGIN
             VALUE "CompanyName", "Northstar Developers"
-            VALUE "FileDescription", "Northstar Launcher"
+            VALUE "FileDescription", "Roguelike Launcher"
             VALUE "FileVersion", "DEV"
-            VALUE "InternalName", "NorthstarLauncher.exe"
+            VALUE "InternalName", "RoguelikeLauncher.exe"
             VALUE "LegalCopyright", "Copyright (C) 2021"
-            VALUE "OriginalFilename", "NorthstarLauncher.exe"
+            VALUE "OriginalFilename", "RoguelikeLauncher.exe"
             VALUE "ProductName", "Northstar Launcher"
             VALUE "ProductVersion", "DEV"
         END

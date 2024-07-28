@@ -25,7 +25,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 	switch (ul_reason_for_call)
 	{
 	case DLL_PROCESS_ATTACH:
-		g_NorthstarModule = hModule;
+		g_RoguelikeModule = hModule;
 		break;
 	case DLL_THREAD_ATTACH:
 	case DLL_THREAD_DETACH:
@@ -36,7 +36,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 	return TRUE;
 }
 
-bool InitialiseNorthstar()
+bool InitialiseRoguelike()
 {
 	static bool bInitialised = false;
 	if (bInitialised)
@@ -44,7 +44,7 @@ bool InitialiseNorthstar()
 
 	bInitialised = true;
 
-	InitialiseNorthstarPrefix();
+	InitialiseRoguelikePrefix();
 
 	// initialise the console if needed (-northstar needs this)
 	InitialiseConsole();

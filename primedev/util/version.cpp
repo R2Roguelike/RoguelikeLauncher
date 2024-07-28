@@ -1,43 +1,39 @@
 #include "util/version.h"
 #include "ns_version.h"
-#include "dedicated/dedicated.h"
 
 char version[16];
 char NSUserAgent[256];
 
 void InitialiseVersion()
 {
-	constexpr int northstar_version[4] {NORTHSTAR_VERSION};
+	constexpr int roguelike_version[4] {ROGUELIKE_VERSION};
 	int ua_len = 0;
 
 	// We actually use the rightmost integer do determine whether or not we're a debug/dev build
 	// If it is set to a non-zero value, we are a dev build
 	// On github CI, we set this to a 0 automatically as we replace the 0,0,0,1 with the real version number
-	if (northstar_version[3])
+	if (roguelike_version[3])
 	{
-		sprintf(version, "%d.%d.%d.%d+dev", northstar_version[0], northstar_version[1], northstar_version[2], northstar_version[3]);
+		sprintf(version, "%d.%d.%d.%d+dev", roguelike_version[0], roguelike_version[1], roguelike_version[2], roguelike_version[3]);
 		ua_len += snprintf(
 			NSUserAgent + ua_len,
 			sizeof(NSUserAgent) - ua_len,
 			"R2Northstar/%d.%d.%d+dev",
-			northstar_version[0],
-			northstar_version[1],
-			northstar_version[2]);
+			roguelike_version[0],
+			roguelike_version[1],
+			roguelike_version[2]);
 	}
 	else
 	{
-		sprintf(version, "%d.%d.%d.%d", northstar_version[0], northstar_version[1], northstar_version[2], northstar_version[3]);
+		sprintf(version, "%d.%d.%d.%d", roguelike_version[0], roguelike_version[1], roguelike_version[2], roguelike_version[3]);
 		ua_len += snprintf(
 			NSUserAgent + ua_len,
 			sizeof(NSUserAgent) - ua_len,
 			"R2Northstar/%d.%d.%d",
-			northstar_version[0],
-			northstar_version[1],
-			northstar_version[2]);
+			roguelike_version[0],
+			roguelike_version[1],
+			roguelike_version[2]);
 	}
-
-	if (IsDedicatedServer())
-		ua_len += snprintf(NSUserAgent + ua_len, sizeof(NSUserAgent) - ua_len, " (Dedicated)");
 
 	// Add the host platform info to the user agent.
 	//

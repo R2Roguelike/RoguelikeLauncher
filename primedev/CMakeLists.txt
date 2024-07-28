@@ -1,3 +1,2 @@
-include(Northstar.cmake)
+include(Roguelike.cmake)
 add_subdirectory(primelauncher)
-add_subdirectory(wsockproxy)

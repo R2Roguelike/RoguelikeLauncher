@@ -454,7 +454,7 @@ ADD_SQFUNC("void", NSDeleteFile, "string file", "", ScriptContext::SERVER | Scri
 // The param is not optional because that causes issues :)
 ADD_SQFUNC("array<string>", NS_InternalGetAllFiles, "string path", "", ScriptContext::CLIENT | ScriptContext::UI | ScriptContext::SERVER)
 {
-	// depth 1 because this should always get called from Northstar.Custom
+	// depth 1 because this should always get called from Roguelike.Custom
 	Mod* mod = g_pSquirrel<context>->getcallingmod(sqvm, 1);
 	fs::path dir = savePath / fs::path(mod->m_ModDirectory).filename();
 	std::string pathStr = g_pSquirrel<context>->getstring(sqvm, 1);
@@ -559,7 +559,7 @@ template <ScriptContext context> std::string EncodeJSON(HSquirrelVM* sqvm)
 
 ON_DLL_LOAD("engine.dll", ModSaveFFiles_Init, (CModule module))
 {
-	savePath = fs::path(GetNorthstarPrefix()) / "save_data";
+	savePath = fs::path(GetRoguelikePrefix()) / "save_data";
 	g_pSaveFileManager = new SaveFileManager;
 	int parm = CommandLine()->FindParm("-maxfoldersize");
 	if (parm)

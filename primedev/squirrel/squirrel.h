@@ -135,9 +135,9 @@ public:
 		return __sq_compilebuffer(m_pSQVM->sqvm, bufferState, bufferName, -1, bShouldThrowError);
 	}
 
-	inline SQRESULT _call(HSquirrelVM* sqvm, const SQInteger args)
+	inline SQRESULT _call(HSquirrelVM* sqvm, const SQInteger args, bool throwError)
 	{
-		return __sq_call(sqvm, args + 1, false, true);
+		return __sq_call(sqvm, args + 1, false, throwError);
 	}
 
 	inline SQInteger raiseerror(HSquirrelVM* sqvm, const SQChar* sError)
@@ -364,7 +364,7 @@ public:
 		}
 		pushobject(m_pSQVM->sqvm, &functionobj); // Push the function object
 		pushroottable(m_pSQVM->sqvm); // Push root table
-		return _call(m_pSQVM->sqvm, 0);
+		return _call(m_pSQVM->sqvm, 0, true);
 	}
 
 	template <typename... Args> SQRESULT Call(const char* funcname, Args... args)
@@ -397,7 +397,7 @@ public:
 			v();
 		}
 
-		return _call(m_pSQVM->sqvm, (SQInteger)functionVector.size());
+		return _call(m_pSQVM->sqvm, (SQInteger)functionVector.size(), true);
 	}
 
 #pragma endregion

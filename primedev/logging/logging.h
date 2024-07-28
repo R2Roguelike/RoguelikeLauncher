@@ -100,7 +100,7 @@ namespace NS::log
 	// Echo
 	extern std::shared_ptr<ColoredLogger> echo;
 
-	extern std::shared_ptr<ColoredLogger> NORTHSTAR;
+	extern std::shared_ptr<ColoredLogger> ROGUELIKE;
 
 	extern std::shared_ptr<ColoredLogger> PLUGINSYS;
 

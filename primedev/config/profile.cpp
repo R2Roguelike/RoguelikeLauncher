@@ -1,13 +1,12 @@
 #include "config/profile.h"
-#include "dedicated/dedicated.h"
 #include <string>
 
-std::string GetNorthstarPrefix()
+std::string GetRoguelikePrefix()
 {
-	return NORTHSTAR_FOLDER_PREFIX;
+	return ROGUELIKE_FOLDER_PREFIX;
 }
 
-void InitialiseNorthstarPrefix()
+void InitialiseRoguelikePrefix()
 {
 	char* clachar = strstr(GetCommandLineA(), "-profile=");
 	if (clachar)
@@ -17,7 +16,7 @@ void InitialiseNorthstarPrefix()
 		{
 			size_t space = cla.find(" ");
 			std::string dirname = cla.substr(9, space - 9);
-			NORTHSTAR_FOLDER_PREFIX = dirname;
+			ROGUELIKE_FOLDER_PREFIX = dirname;
 		}
 		else
 		{
@@ -25,16 +24,15 @@ void InitialiseNorthstarPrefix()
 			size_t quote1 = cla.find(quote);
 			size_t quote2 = (cla.substr(quote1 + 1)).find(quote);
 			std::string dirname = cla.substr(quote1 + 1, quote2);
-			NORTHSTAR_FOLDER_PREFIX = dirname;
+			ROGUELIKE_FOLDER_PREFIX = dirname;
 		}
 	}
 	else
 	{
-		NORTHSTAR_FOLDER_PREFIX = "R2Northstar";
+		ROGUELIKE_FOLDER_PREFIX = "R2Roguelike";
 	}
 
 	// set the console title to show the current profile
 	// dont do this on dedi as title contains useful information on dedi and setting title breaks it as well
-	if (!IsDedicatedServer())
-		SetConsoleTitleA((std::string("NorthstarLauncher | ") + NORTHSTAR_FOLDER_PREFIX).c_str());
+	SetConsoleTitleA((std::string("RoguelikeLauncher | ") + ROGUELIKE_FOLDER_PREFIX).c_str());
 }

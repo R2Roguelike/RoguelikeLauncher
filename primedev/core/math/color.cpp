@@ -3,7 +3,7 @@
 namespace NS::Colors
 {
 	Color SCRIPT_UI		(100, 255, 255);
-	Color SCRIPT_CL		(100, 255, 100);
+	Color SCRIPT_CL		(255, 255, 100);
 	Color SCRIPT_SV		(255, 100, 255);
 	Color NATIVE_UI		(50 , 150, 150);
 	Color NATIVE_CL		(50 , 150, 50 );
@@ -11,7 +11,7 @@ namespace NS::Colors
 	Color NATIVE_ENGINE	(252, 133, 153);
 	Color FILESYSTEM	(0  , 150, 150);
 	Color RPAK			(255, 190, 0  );
-	Color NORTHSTAR		(66 , 72 , 128);
+	Color ROGUELIKE		(49 , 235, 99 );
 	Color ECHO			(150, 150, 159);
 	Color PLUGINSYS		(244, 60 , 14);
 	Color PLUGIN		(244, 106, 14);

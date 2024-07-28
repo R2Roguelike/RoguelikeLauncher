@@ -30,7 +30,7 @@ namespace NS::log
 	std::shared_ptr<ColoredLogger> rpak;
 	std::shared_ptr<ColoredLogger> echo;
 
-	std::shared_ptr<ColoredLogger> NORTHSTAR;
+	std::shared_ptr<ColoredLogger> ROGUELIKE;
 	std::shared_ptr<ColoredLogger> PLUGINSYS;
 }; // namespace NS::log
 
@@ -50,7 +50,7 @@ void CreateLogFiles()
 			tm currentTime = *std::localtime(&time);
 			std::stringstream stream;
 
-			stream << std::put_time(&currentTime, (GetNorthstarPrefix() + "/logs/nslog%Y-%m-%d %H-%M-%S.txt").c_str());
+			stream << std::put_time(&currentTime, (GetRoguelikePrefix() + "/logs/nslog%Y-%m-%d %H-%M-%S.txt").c_str());
 			auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(stream.str(), false);
 			sink->set_pattern("[%Y-%m-%d] [%H:%M:%S] [%n] [%l] %v");
 			for (auto& logger : loggers)
@@ -124,7 +124,7 @@ void CustomSink::custom_log(const custom_log_msg& msg)
 
 void InitialiseConsole()
 {
-	if (GetConsoleWindow() == NULL && AllocConsole() == FALSE)
+	if (AllocConsole() == FALSE)
 	{
 		std::cout << "[*] Failed to create a console window" << std::endl;
 	}
@@ -169,10 +169,10 @@ void RegisterCustomSink(std::shared_ptr<CustomSink> sink)
 void InitialiseLogging()
 {
 	// create a logger, and set it to default
-	NS::log::NORTHSTAR = std::make_shared<ColoredLogger>("NORTHSTAR", NS::Colors::NORTHSTAR, true);
-	NS::log::NORTHSTAR->sinks().clear();
-	loggers.push_back(NS::log::NORTHSTAR);
-	spdlog::set_default_logger(NS::log::NORTHSTAR);
+	NS::log::ROGUELIKE = std::make_shared<ColoredLogger>("ROGUELIKE", NS::Colors::ROGUELIKE, true);
+	NS::log::ROGUELIKE->sinks().clear();
+	loggers.push_back(NS::log::ROGUELIKE);
+	spdlog::set_default_logger(NS::log::ROGUELIKE);
 
 	// create our console sink
 	auto sink = std::make_shared<ExternalConsoleSink>();
@@ -184,7 +184,7 @@ void InitialiseLogging()
 		sink->set_pattern("[%H:%M:%S] [%n] [%l] %v");
 
 	// add our sink to the logger
-	NS::log::NORTHSTAR->custom_sinks_.push_back(sink);
+	NS::log::ROGUELIKE->custom_sinks_.push_back(sink);
 
 	NS::log::SCRIPT_UI = std::make_shared<ColoredLogger>("SCRIPT UI", NS::Colors::SCRIPT_UI);
 	NS::log::SCRIPT_CL = std::make_shared<ColoredLogger>("SCRIPT CL", NS::Colors::SCRIPT_CL);
@@ -238,9 +238,9 @@ RtlGetVersion_type RtlGetVersion;
 
 void StartupLog()
 {
-	spdlog::info("NorthstarLauncher version: {}", version);
+	spdlog::info("RoguelikeLauncher version: {}", version);
 	spdlog::info("Command line: {}", GetCommandLineA());
-	spdlog::info("Using profile: {}", GetNorthstarPrefix());
+	spdlog::info("Using profile: {}", GetRoguelikePrefix());
 
 	HMODULE ntdll = GetModuleHandleA("ntdll.dll");
 	if (!ntdll)

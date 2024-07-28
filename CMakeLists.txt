@@ -6,7 +6,7 @@ cmake_policy(
     )
 
 project(
-    Northstar
+    Roguelike
     CXX
     ASM_MASM
     )

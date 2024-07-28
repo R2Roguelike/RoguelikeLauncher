@@ -44,8 +44,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION NORTHSTAR_VERSION
- PRODUCTVERSION NORTHSTAR_VERSION
+ FILEVERSION ROGUELIKE_VERSION
+ PRODUCTVERSION ROGUELIKE_VERSION
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -62,9 +62,9 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Northstar Developers"
             VALUE "FileVersion", "DEV"
-            VALUE "InternalName", "Northstar.dll"
+            VALUE "InternalName", "Roguelike.dll"
             VALUE "LegalCopyright", "Copyright (C) 2021"
-            VALUE "OriginalFilename", "Northstar.dll"
+            VALUE "OriginalFilename", "Roguelike.dll"
             VALUE "ProductVersion", "DEV"
         END
     END

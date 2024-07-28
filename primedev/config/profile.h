@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-static std::string NORTHSTAR_FOLDER_PREFIX;
+static std::string ROGUELIKE_FOLDER_PREFIX;
 
-void InitialiseNorthstarPrefix();
-std::string GetNorthstarPrefix();
+void InitialiseRoguelikePrefix();
+std::string GetRoguelikePrefix();

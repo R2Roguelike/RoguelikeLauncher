@@ -62,7 +62,7 @@ bool PluginManager::LoadPlugins(bool reloaded)
 
 	std::vector<fs::path> paths;
 
-	pluginPath = GetNorthstarPrefix() + "\\plugins";
+	pluginPath = GetRoguelikePrefix() + "\\plugins";
 
 	fs::path libPath = fs::absolute(pluginPath + "\\lib");
 	if (fs::exists(libPath) && fs::is_directory(libPath))

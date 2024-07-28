@@ -1,11 +1,11 @@
-# NorthstarLauncher
+# RoguelikeLauncher
 
-add_executable(NorthstarLauncher "main.cpp" "resources.rc")
+add_executable(RoguelikeLauncher "main.cpp" "resources.rc")
 
-target_compile_definitions(NorthstarLauncher PRIVATE UNICODE _UNICODE)
+target_compile_definitions(RoguelikeLauncher PRIVATE UNICODE _UNICODE)
 
 target_link_libraries(
-    NorthstarLauncher
+    RoguelikeLauncher
     PRIVATE shlwapi.lib
             kernel32.lib
             user32.lib
@@ -23,6 +23,6 @@ target_link_libraries(
     )
 
 set_target_properties(
-    NorthstarLauncher PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${NS_BINARY_DIR} LINK_FLAGS
+    RoguelikeLauncher PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${NS_BINARY_DIR} LINK_FLAGS
                                                                            "/MANIFEST:NO /DEBUG /STACK:8000000"
     )

@@ -1,6 +1,5 @@
 #include "rpakfilesystem.h"
 #include "mods/modmanager.h"
-#include "dedicated/dedicated.h"
 #include "core/tier0.h"
 
 AUTOHOOK_INIT()
@@ -202,22 +201,6 @@ int, __fastcall, (char* pPath, void* unknownSingleton, int flags, void* pCallbac
 		LoadCustomMapPaks(&pPath, &bNeedToFreePakName);
 
 		bShouldLoadPaks = true;
-
-		// do this after custom paks load and in bShouldLoadPaks so we only ever call this on the root pakload call
-		// todo: could probably add some way to flag custom paks to not be loaded on dedicated servers in rpak.json
-
-		// dedicated only needs common, common_mp, common_sp, and sp_<map> rpaks
-		// sp_<map> rpaks contain tutorial ghost data
-		// sucks to have to load the entire rpak for that but sp was never meant to be done on dedi
-		if (IsDedicatedServer() &&
-			(CommandLine()->CheckParm("-nopakdedi") || strncmp(&originalPath[0], "common", 6) && strncmp(&originalPath[0], "sp_", 3)))
-		{
-			if (bNeedToFreePakName)
-				delete[] pPath;
-
-			NS::log::rpak->info("Not loading pak {} for dedicated server", originalPath);
-			return -1;
-		}
 	}
 
 	int iPakHandle = LoadPakAsync(pPath, unknownSingleton, flags, pCallback0, pCallback1);
@@ -266,9 +249,6 @@ void*, __fastcall, (const char* pPath, void* pCallback))
 
 	if (path.extension() == ".stbsp")
 	{
-		if (IsDedicatedServer())
-			return nullptr;
-
 		NS::log::rpak->info("LoadStreamBsp: {}", filename.string());
 
 		// resolve modded stbsp path so we can load mod stbsps
@@ -281,9 +261,6 @@ void*, __fastcall, (const char* pPath, void* pCallback))
 	}
 	else if (path.extension() == ".starpak")
 	{
-		if (IsDedicatedServer())
-			return nullptr;
-
 		// code for this is mostly stolen from above
 
 		// unfortunately I can't find a way to get the rpak that is causing this function call, so I have to

@@ -1,7 +1,7 @@
 AUTOHOOK_INIT()
 
 HWND* g_gameHWND;
-HMODULE g_NorthstarModule = 0;
+HMODULE g_RoguelikeModule = 0;
 
 ON_DLL_LOAD("engine.dll", WinInfo, (CModule module))
 {

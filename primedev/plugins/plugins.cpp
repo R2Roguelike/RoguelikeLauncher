@@ -4,7 +4,6 @@
 #include "util/wininfo.h"
 #include "core/sourceinterface.h"
 #include "logging/logging.h"
-#include "dedicated/dedicated.h"
 
 bool isValidSquirrelIdentifier(std::string s)
 {
@@ -108,18 +107,6 @@ Plugin::Plugin(std::string path) : m_location(path)
 	m_logger = std::make_shared<ColoredLogger>(m_logName, NS::Colors::PLUGIN);
 	RegisterLogger(m_logger);
 
-	if (IsDedicatedServer() && !m_runOnServer)
-	{
-		NS::log::PLUGINSYS->info("Unloading {} because it's not supposed to run on dedicated servers", m_name);
-		return;
-	}
-
-	if (!IsDedicatedServer() && !m_runOnClient)
-	{
-		NS::log::PLUGINSYS->info("Unloading {} because it's only supposed to run on dedicated servers", m_name);
-		return;
-	}
-
 	m_valid = true;
 }
 
@@ -203,7 +190,7 @@ void* Plugin::CreateInterface(const char* name, int* status) const
 
 void Plugin::Init(bool reloaded) const
 {
-	m_callbacks->Init(g_NorthstarModule, &m_initData, reloaded);
+	m_callbacks->Init(g_RoguelikeModule, &m_initData, reloaded);
 }
 
 void Plugin::Finalize() const

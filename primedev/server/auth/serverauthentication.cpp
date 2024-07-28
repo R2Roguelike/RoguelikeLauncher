@@ -2,12 +2,9 @@
 #include "shared/exploit_fixes/ns_limits.h"
 #include "core/convar/cvar.h"
 #include "core/convar/convar.h"
-#include "masterserver/masterserver.h"
 #include "server/serverpresence.h"
 #include "engine/hoststate.h"
-#include "bansystem.h"
 #include "core/convar/concommand.h"
-#include "dedicated/dedicated.h"
 #include "config/profile.h"
 #include "core/tier0.h"
 #include "engine/r2engine.h"
@@ -191,8 +188,7 @@ void ServerAuthenticationManager::WritePersistentData(CBaseClient* pPlayer)
 {
 	if (pPlayer->m_iPersistenceReady == ePersistenceReady::READY_REMOTE)
 	{
-		g_pMasterServerManager->WritePlayerPersistentData(
-			pPlayer->m_UID, (const char*)pPlayer->m_PersistenceBuffer, m_PlayerAuthenticationData[pPlayer].pdataSize);
+
 	}
 	else if (Cvar_ns_auth_allow_insecure_write->GetBool())
 	{
@@ -250,8 +246,6 @@ bool,, (CBaseClient* self, char* pName, void* pNetChannel, char bFakePlayer, voi
 	{
 		if (!g_pServerAuthentication->VerifyPlayerName(pNextPlayerToken, pName, pVerifiedName))
 			pAuthenticationFailure = "Invalid Name.";
-		else if (!g_pBanSystem->IsUIDAllowed(iNextPlayerUid))
-			pAuthenticationFailure = "Banned From server.";
 		else if (!g_pServerAuthentication->CheckAuthentication(self, iNextPlayerUid, pNextPlayerToken))
 			pAuthenticationFailure = "Authentication Failed.";
 	}

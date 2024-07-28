@@ -1,4 +1,4 @@
 #pragma once
 
 extern HWND* g_gameHWND;
-extern HMODULE g_NorthstarModule;
+extern HMODULE g_RoguelikeModule;

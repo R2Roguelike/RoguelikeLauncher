@@ -3,7 +3,6 @@
 #include "logging/logging.h"
 #include "core/convar/concommand.h"
 #include "mods/modmanager.h"
-#include "dedicated/dedicated.h"
 #include "engine/r2engine.h"
 #include "core/tier0.h"
 #include "plugins/plugins.h"
@@ -197,7 +196,7 @@ template <ScriptContext context> void SquirrelManager<context>::VMCreated(CSquir
 	defconst(m_pSQVM, "MAX_FOLDER_SIZE", GetMaxSaveFolderSize() / 1024);
 
 	// define squirrel constants for northstar(.dll) version
-	constexpr int version[4] {NORTHSTAR_VERSION};
+	constexpr int version[4] {ROGUELIKE_VERSION};
 	defconst(m_pSQVM, "NS_VERSION_MAJOR", version[0]);
 	defconst(m_pSQVM, "NS_VERSION_MINOR", version[1]);
 	defconst(m_pSQVM, "NS_VERSION_PATCH", version[2]);
@@ -260,6 +259,10 @@ template <ScriptContext context> void SquirrelManager<context>::ExecuteCode(cons
 	spdlog::info("Executing {} script code {} ", GetContextName(context), pCode);
 
 	std::string strCode(pCode);
+	if (strCode[0] == '\"' && strCode[strCode.length() - 1] == '\"')
+	{
+		strCode = strCode.substr(1, strCode.length() - 2);
+	}
 	CompileBufferState bufferState = CompileBufferState(strCode);
 
 	SQRESULT compileResult = compilebuffer(&bufferState, "console");
@@ -268,7 +271,7 @@ template <ScriptContext context> void SquirrelManager<context>::ExecuteCode(cons
 	if (compileResult != SQRESULT_ERROR)
 	{
 		pushroottable(m_pSQVM->sqvm);
-		SQRESULT callResult = _call(m_pSQVM->sqvm, 0);
+		SQRESULT callResult = _call(m_pSQVM->sqvm, 0, false);
 		spdlog::info("sq_call returned {}", PrintSQRESULT.at(callResult));
 	}
 }
@@ -425,28 +428,17 @@ void __fastcall ScriptCompileErrorHook(HSquirrelVM* sqvm, const char* error, con
 	// todo, we could get this from sqvm itself probably, rather than hooking sq_compiler_create
 	if (bIsFatalError)
 	{
-		// kill dedicated server if we hit this
-		if (IsDedicatedServer())
-		{
-			logger->error("Exiting dedicated server, compile error is fatal");
-			// flush the logger before we exit so debug things get saved to log file
-			logger->flush();
-			exit(EXIT_FAILURE);
-		}
-		else
-		{
-			Cbuf_AddText(
-				Cbuf_GetCurrentPlayer(),
-				fmt::format("disconnect \"Encountered {} script compilation error, see console for details.\"", GetContextName(realContext))
-					.c_str(),
-				cmd_source_t::kCommandSrcCode);
+		Cbuf_AddText(
+			Cbuf_GetCurrentPlayer(),
+			fmt::format("disconnect \"Encountered {} script compilation error, see console for details.\"", GetContextName(realContext))
+				.c_str(),
+			cmd_source_t::kCommandSrcCode);
 
-			// likely temp: show console so user can see any errors, as error message wont display if ui is dead
-			// maybe we could disable all mods other than the coremods and try a reload before doing this?
-			// could also maybe do some vgui bullshit to show something visually rather than console
-			if (realContext == ScriptContext::UI)
-				Cbuf_AddText(Cbuf_GetCurrentPlayer(), "showconsole", cmd_source_t::kCommandSrcCode);
-		}
+		// likely temp: show console so user can see any errors, as error message wont display if ui is dead
+		// maybe we could disable all mods other than the coremods and try a reload before doing this?
+		// could also maybe do some vgui bullshit to show something visually rather than console
+		if (realContext == ScriptContext::UI)
+			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "showconsole", cmd_source_t::kCommandSrcCode);
 	}
 
 	// dont call the original function since it kills game lol
@@ -598,7 +590,7 @@ template <ScriptContext context> void SquirrelManager<context>::ProcessMessageBu
 			v();
 		}
 
-		_call(m_pSQVM->sqvm, (SQInteger)argsAmount);
+		_call(m_pSQVM->sqvm, (SQInteger)argsAmount, true);
 	}
 }
 

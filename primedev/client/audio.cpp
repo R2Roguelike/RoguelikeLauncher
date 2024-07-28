@@ -1,5 +1,4 @@
 #include "audio.h"
-#include "dedicated/dedicated.h"
 #include "core/convar/convar.h"
 
 #include "rapidjson/error/en.h"
@@ -270,9 +269,6 @@ EventOverrideData::EventOverrideData(const std::string& data, const fs::path& pa
 
 bool CustomAudioManager::TryLoadAudioOverride(const fs::path& defPath, std::string modName)
 {
-	if (IsDedicatedServer())
-		return true; // silently fail
-
 	std::ifstream jsonStream(defPath);
 	std::stringstream jsonStringStream;
 
@@ -329,9 +325,6 @@ MilesStopAll_Type MilesStopAll;
 
 void CustomAudioManager::ClearAudioOverrides()
 {
-	if (IsDedicatedServer())
-		return;
-
 	if (m_loadedAudioOverrides.size() > 0 || m_loadedAudioOverridesRegex.size() > 0)
 	{
 		// stop all miles sounds beforehand

@@ -5,9 +5,7 @@
 #include "client/r2client.h"
 #include "core/tier0.h"
 #include "engine/hoststate.h"
-#include "masterserver/masterserver.h"
 #include "mods/modmanager.h"
-#include "server/auth/serverauthentication.h"
 #include "squirrel/squirrel.h"
 
 void ConCommand_force_newgame(const CCommand& arg)
@@ -17,33 +15,6 @@ void ConCommand_force_newgame(const CCommand& arg)
 
 	g_pHostState->m_iNextState = HostState_t::HS_NEW_GAME;
 	strncpy(g_pHostState->m_levelName, arg.Arg(1), sizeof(g_pHostState->m_levelName));
-}
-
-void ConCommand_ns_start_reauth_and_leave_to_lobby(const CCommand& arg)
-{
-	NOTE_UNUSED(arg);
-	// hack for special case where we're on a local server, so we erase our own newly created auth data on disconnect
-	g_pMasterServerManager->m_bNewgameAfterSelfAuth = true;
-	g_pMasterServerManager->AuthenticateWithOwnServer(g_pLocalPlayerUserID, g_pMasterServerManager->m_sOwnClientAuthToken);
-}
-
-void ConCommand_ns_end_reauth_and_leave_to_lobby(const CCommand& arg)
-{
-	NOTE_UNUSED(arg);
-	if (g_pServerAuthentication->m_RemoteAuthenticationData.size())
-		g_pCVar->FindVar("serverfilter")->SetValue(g_pServerAuthentication->m_RemoteAuthenticationData.begin()->first.c_str());
-
-	// weird way of checking, but check if client script vm is initialised, mainly just to allow players to cancel this
-	if (g_pSquirrel<ScriptContext::CLIENT>->m_pSQVM)
-	{
-		g_pServerAuthentication->m_bNeedLocalAuthForNewgame = true;
-
-		// this won't set playlist correctly on remote clients, don't think they can set playlist until they've left which sorta
-		// fucks things should maybe set this in HostState_NewGame?
-		R2::SetCurrentPlaylist("tdm");
-		strcpy(g_pHostState->m_levelName, "mp_lobby");
-		g_pHostState->m_iNextState = HostState_t::HS_NEW_GAME;
-	}
 }
 
 void ConCommand_cvar_setdefaultvalue(const CCommand& arg)
@@ -119,15 +90,6 @@ void AddMiscConCommands()
 		ConCommand_force_newgame,
 		"forces a map load through directly setting g_pHostState->m_iNextState to HS_NEW_GAME",
 		FCVAR_NONE);
-
-	RegisterConCommand(
-		"ns_start_reauth_and_leave_to_lobby",
-		ConCommand_ns_start_reauth_and_leave_to_lobby,
-		"called by the server, used to reauth and return the player to lobby when leaving a game",
-		FCVAR_SERVER_CAN_EXECUTE);
-
-	// this is a concommand because we make a deferred call to it from another thread
-	RegisterConCommand("ns_end_reauth_and_leave_to_lobby", ConCommand_ns_end_reauth_and_leave_to_lobby, "", FCVAR_NONE);
 
 	RegisterConCommand(
 		"cvar_setdefaultvalue",

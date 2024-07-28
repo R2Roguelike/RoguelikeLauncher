@@ -1,4 +1,4 @@
-# NorthstarDLL
+# RoguelikeDLL
 
 find_package(minhook REQUIRED)
 find_package(libcurl REQUIRED)
@@ -6,7 +6,7 @@ find_package(minizip REQUIRED)
 find_package(silver-bun REQUIRED)
 
 add_library(
-    NorthstarDLL SHARED
+    RoguelikeDLL SHARED
     "resources.rc"
     "client/audio.cpp"
     "client/audio.h"
@@ -58,11 +58,6 @@ add_library(
     "core/tier0.h"
     "core/tier1.cpp"
     "core/tier1.h"
-    "dedicated/dedicated.cpp"
-    "dedicated/dedicated.h"
-    "dedicated/dedicatedlogtoclient.cpp"
-    "dedicated/dedicatedlogtoclient.h"
-    "dedicated/dedicatedmaterialsystem.cpp"
     "engine/host.cpp"
     "engine/hoststate.cpp"
     "engine/hoststate.h"
@@ -77,10 +72,6 @@ add_library(
     "logging/loghooks.h"
     "logging/sourceconsole.cpp"
     "logging/sourceconsole.h"
-    "masterserver/masterserver.cpp"
-    "masterserver/masterserver.h"
-    "mods/autodownload/moddownloader.h"
-    "mods/autodownload/moddownloader.cpp"
     "mods/compiled/kb_act.cpp"
     "mods/compiled/modkeyvalues.cpp"
     "mods/compiled/modpdef.cpp"
@@ -104,10 +95,8 @@ add_library(
     "scripts/client/clientchathooks.cpp"
     "scripts/client/cursorposition.cpp"
     "scripts/client/scriptbrowserhooks.cpp"
-    "scripts/client/scriptmainmenupromos.cpp"
     "scripts/client/scriptmodmenu.cpp"
-    "scripts/client/scriptoriginauth.cpp"
-    "scripts/client/scriptserverbrowser.cpp"
+    
     "scripts/client/scriptservertoclientstringcommand.cpp"
     "scripts/server/miscserverfixes.cpp"
     "scripts/server/miscserverscript.cpp"
@@ -118,11 +107,9 @@ add_library(
     "scripts/scriptjson.cpp"
     "scripts/scriptjson.h"
     "scripts/scriptutility.cpp"
-    "server/auth/bansystem.cpp"
-    "server/auth/bansystem.h"
     "server/auth/serverauthentication.cpp"
     "server/auth/serverauthentication.h"
-    "server/alltalk.cpp"
+    
     "server/ai_helper.cpp"
     "server/ai_helper.h"
     "server/ai_navmesh.cpp"
@@ -167,11 +154,11 @@ add_library(
     "util/wininfo.h"
     "dllmain.cpp"
     "ns_version.h"
-    "Northstar.def"
+    "Roguelike.def"
     )
 
 target_link_libraries(
-    NorthstarDLL
+    RoguelikeDLL
     PRIVATE minhook
             libcurl
             minizip
@@ -187,21 +174,21 @@ target_link_libraries(
     )
 
 target_precompile_headers(
-    NorthstarDLL
+    RoguelikeDLL
     PRIVATE
     pch.h
     )
 
 target_compile_definitions(
-    NorthstarDLL
+    RoguelikeDLL
     PRIVATE UNICODE
             _UNICODE
             CURL_STATICLIB
     )
 
 set_target_properties(
-    NorthstarDLL
+    RoguelikeDLL
     PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${NS_BINARY_DIR}
-               OUTPUT_NAME Northstar
+               OUTPUT_NAME Roguelike
                LINK_FLAGS "/MANIFEST:NO /DEBUG"
     )

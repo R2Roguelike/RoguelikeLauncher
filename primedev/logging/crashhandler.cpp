@@ -1,10 +1,10 @@
 #include "crashhandler.h"
 #include "config/profile.h"
-#include "dedicated/dedicated.h"
 #include "util/version.h"
 #include "mods/modmanager.h"
 #include "plugins/plugins.h"
 #include "plugins/pluginmanager.h"
+#include "squirrel/squirrel.h"
 
 #include <minidumpapiset.h>
 
@@ -67,7 +67,7 @@ LONG WINAPI ExceptionFilter(EXCEPTION_POINTERS* pExceptionInfo)
 
 	g_pCrashHandler->Unlock();
 
-	// We showed the "Northstar has crashed" message box
+	// We showed the "Roguelike has crashed" message box
 	// make sure we terminate
 	if (!g_pCrashHandler->IsExceptionFatal())
 		ExitProcess(1);
@@ -297,17 +297,14 @@ void CCrashHandler::ShowPopUpMessage()
 
 	m_bHasShownCrashMsg = true;
 
-	if (!IsDedicatedServer())
-	{
-		std::string svMessage = fmt::format(
-			"Northstar has crashed! Crash info can be found at {}/logs!\n\n{}\n{} + {}",
-			GetNorthstarPrefix(),
-			GetExceptionString(),
-			m_svCrashedModule,
-			m_svCrashedOffset);
+	std::string svMessage = fmt::format(
+		"Roguelike has crashed! Crash info can be found at {}/logs!\n\n{}\n{} + {}",
+		GetRoguelikePrefix(),
+		GetExceptionString(),
+		m_svCrashedModule,
+		m_svCrashedOffset);
 
-		MessageBoxA(GetForegroundWindow(), svMessage.c_str(), "Northstar has crashed!", MB_ICONERROR | MB_OK);
-	}
+	MessageBoxA(GetForegroundWindow(), svMessage.c_str(), "Roguelike has crashed!", MB_ICONERROR | MB_OK);
 }
 
 //-----------------------------------------------------------------------------
@@ -401,6 +398,46 @@ void CCrashHandler::FormatCallstack()
 		// Log module + offset
 		spdlog::error("\t{} + {:#x}", pszModuleFileName, reinterpret_cast<DWORD64>(pCrashOffset));
 	}
+
+	/*
+	// script callstack
+	try
+	{
+		for (int i = 1; i < 4; i++)
+		{
+			SQStackInfos out;
+			g_pSquirrel<ScriptContext::SERVER>->sq_stackinfos(g_pSquirrel<ScriptContext::SERVER>->m_pSQVM->sqvm, i, out);
+			spdlog::error("SV Script: {}:{} ({})", out._sourceName, out._line, out._name);
+		}
+	}
+	catch (...)
+	{
+	}
+	try
+	{
+		for (int i = 1; i < 4; i++)
+		{
+			SQStackInfos out;
+			g_pSquirrel<ScriptContext::CLIENT>->sq_stackinfos(g_pSquirrel<ScriptContext::CLIENT>->m_pSQVM->sqvm, i, out);
+			spdlog::error("CL Script: {}:{} ({})", out._sourceName, out._line, out._name);
+		}
+	}
+	catch (...)
+	{
+	}
+	try
+	{
+		for (int i = 1; i < 4; i++)
+		{
+			SQStackInfos out;
+			g_pSquirrel<ScriptContext::UI>->sq_stackinfos(g_pSquirrel<ScriptContext::UI>->m_pSQVM->sqvm, i, out);
+			spdlog::error("CL Script: {}:{} ({})", out._sourceName, out._line, out._name);
+		}
+	}
+	catch (...)
+	{
+	}
+	*/
 }
 
 //-----------------------------------------------------------------------------
@@ -563,7 +600,7 @@ void CCrashHandler::WriteMinidump()
 	time_t time = std::time(nullptr);
 	tm currentTime = *std::localtime(&time);
 	std::stringstream stream;
-	stream << std::put_time(&currentTime, (GetNorthstarPrefix() + "/logs/nsdump%Y-%m-%d %H-%M-%S.dmp").c_str());
+	stream << std::put_time(&currentTime, (GetRoguelikePrefix() + "/logs/nsdump%Y-%m-%d %H-%M-%S.dmp").c_str());
 
 	HANDLE hMinidumpFile = CreateFileA(stream.str().c_str(), GENERIC_WRITE, FILE_SHARE_READ, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
 	if (hMinidumpFile)
