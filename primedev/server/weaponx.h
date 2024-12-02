@@ -3,7 +3,6 @@
 
 inline void* CWeaponX_vftable = nullptr;
 
-#pragma pack(push, 1)
 struct CWeaponX
 {
 public:
@@ -16,5 +15,4 @@ public:
 	// the actual datatype. Start of another struct?
 	const char weaponVars[0xCA0]; // 0x1410
 };
-#pragma pack(pop)
 static_assert(offsetof(CWeaponX, weaponVars) == 0x1410);

@@ -159,15 +159,6 @@ void, __fastcall, (CHostState* self, double flCurrentTime, float flFrameTime))
 {
 	CHostState__FrameUpdate(self, flCurrentTime, flFrameTime);
 
-	if (*g_pServerState == server_state_t::ss_active)
-	{
-		// update server presence
-		g_pServerPresence->RunFrame(flCurrentTime);
-
-		// update limits for frame
-		g_pServerLimits->RunFrame(flCurrentTime, flFrameTime);
-	}
-
 	// Run Squirrel message buffer
 	if (g_pSquirrel<ScriptContext::UI>->m_pSQVM != nullptr && g_pSquirrel<ScriptContext::UI>->m_pSQVM->sqvm != nullptr)
 		g_pSquirrel<ScriptContext::UI>->ProcessMessageBuffer();

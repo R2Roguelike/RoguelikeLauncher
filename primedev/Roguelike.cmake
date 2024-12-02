@@ -11,13 +11,12 @@ add_library(
     "client/audio.cpp"
     "client/audio.h"
     "client/chatcommand.cpp"
-    "client/clientauthhooks.cpp"
+    
     "client/clientruihooks.cpp"
     "client/clientvideooverrides.cpp"
     "client/debugoverlay.cpp"
     "client/demofixes.cpp"
     "client/diskvmtfixes.cpp"
-    "client/entity_client_tools.cpp"
     "client/languagehooks.cpp"
     "client/latencyflex.cpp"
     "client/localchatwriter.cpp"
@@ -109,12 +108,6 @@ add_library(
     "scripts/scriptutility.cpp"
     "server/auth/serverauthentication.cpp"
     "server/auth/serverauthentication.h"
-    
-    "server/ai_helper.cpp"
-    "server/ai_helper.h"
-    "server/ai_navmesh.cpp"
-    "server/ai_navmesh.h"
-    "server/buildainfile.cpp"
     "server/r2server.cpp"
     "server/r2server.h"
     "server/serverchathooks.cpp"
@@ -130,10 +123,10 @@ add_library(
     "shared/exploit_fixes/ns_limits.h"
     "shared/keyvalues.cpp"
     "shared/keyvalues.h"
-    "shared/maxplayers.cpp"
-    "shared/maxplayers.h"
     "shared/misccommands.cpp"
     "shared/misccommands.h"
+	"shared/statuseffects.cpp"
+	"shared/statuseffects.h"
     "shared/playlist.cpp"
     "shared/playlist.h"
     "squirrel/squirrel.cpp"
@@ -155,7 +148,7 @@ add_library(
     "dllmain.cpp"
     "ns_version.h"
     "Roguelike.def"
-    )
+ )
 
 target_link_libraries(
     RoguelikeDLL

@@ -162,6 +162,10 @@ HOOK(MountVPKHook, MountVPK, VPKData*, , (IFileSystem * fileSystem, const char* 
 		}
 	}
 
+	// [15:08:08] [FILESYSTM] [info] MountVPK vpk/client_sp_crashsite.bsp
+	if (pVpkPath != "vpk/client_mp_common.bsp")
+		MountVPK(fileSystem, "vpk/client_mp_common.bsp");
+
 	return ret;
 }
 

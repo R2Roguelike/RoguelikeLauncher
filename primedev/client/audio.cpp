@@ -385,6 +385,7 @@ AUTOHOOK(LoadSampleMetadata, mileswin64.dll + 0xF110,
 bool, __fastcall, (void* sample, void* audioBuffer, unsigned int audioBufferLength, int audioType))
 // clang-format on
 {
+	return LoadSampleMetadata(sample, audioBuffer, audioBufferLength, audioType);
 	// Raw source, used for voice data only
 	if (audioType == 0)
 		return LoadSampleMetadata(sample, audioBuffer, audioBufferLength, audioType);

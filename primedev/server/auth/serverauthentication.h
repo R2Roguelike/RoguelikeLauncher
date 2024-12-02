@@ -37,22 +37,7 @@ public:
 
 	bool m_bAllowDuplicateAccounts = false;
 	bool m_bNeedLocalAuthForNewgame = false;
-	bool m_bForceResetLocalPlayerPersistence = false;
 	bool m_bStartingLocalSPGame = false;
-
-public:
-	void AddRemotePlayer(std::string token, uint64_t uid, std::string username, std::string pdata);
-
-	void AddPlayer(CBaseClient* pPlayer, const char* pAuthToken);
-	void RemovePlayer(CBaseClient* pPlayer);
-
-	bool VerifyPlayerName(const char* pAuthToken, const char* pName, char pOutVerifiedName[64]);
-	bool IsDuplicateAccount(CBaseClient* pPlayer, const char* pUid);
-	bool CheckAuthentication(CBaseClient* pPlayer, uint64_t iUid, char* pAuthToken);
-
-	void AuthenticatePlayer(CBaseClient* pPlayer, uint64_t iUid, char* pAuthToken);
-	bool RemovePlayerAuthData(CBaseClient* pPlayer);
-	void WritePersistentData(CBaseClient* pPlayer);
 };
 
 extern ServerAuthenticationManager* g_pServerAuthentication;

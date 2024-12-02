@@ -17,6 +17,5 @@ ADD_SQFUNC("vector ornull", NSGetCursorPosition, "", "", ScriptContext::UI)
 			 0});
 		return SQRESULT_NOTNULL;
 	}
-	g_pSquirrel<context>->raiseerror(sqvm, "Failed retrieving cursor position of game window");
-	return SQRESULT_ERROR;
+	return SQRESULT_NULL;
 }

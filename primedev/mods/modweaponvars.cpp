@@ -40,14 +40,12 @@ AUTOHOOK(Cl_WeaponTick, client.dll + 0x59D1E0, bool, __fastcall, (C_WeaponX * we
 }
 
 // Name might be wrong, we're going off of frequency of calls
-AUTOHOOK(CPlayerSimulate, server.dll + 0x5A6E50, bool, __fastcall, (CBasePlayer * player, int unk_1, bool unk_2))
+AUTOHOOK(CPlayerSimulate, server.dll + 0x6894F0, bool, __fastcall, (CBasePlayer * player))
 {
 	SQObject* entInstance = g_pSquirrel<ScriptContext::SERVER>->__sq_createscriptinstance(player);
 
-	// we have to do it twice, before AND after, or mispredictions happen.
-	// no idea why, unfortunately :/
-	g_pSquirrel<ScriptContext::SERVER>->Call("CodeCallback_DoWeaponModsForPlayer", entInstance);
-	bool result = CPlayerSimulate(player, unk_1, unk_2);
+	//g_pSquirrel<ScriptContext::SERVER>->Call("CodeCallback_DoWeaponModsForPlayer", entInstance);
+	bool result = CPlayerSimulate(player);
 	g_pSquirrel<ScriptContext::SERVER>->Call("CodeCallback_DoWeaponModsForPlayer", entInstance);
 
 	return result;
@@ -79,9 +77,9 @@ AUTOHOOK(Cl_CalcWeaponMods, client.dll + 0x3CA0B0, bool, __fastcall, (int mods, 
 
 	if (IsWeapon<ScriptContext::CLIENT>((void**)(weaponVars - offsetof(C_WeaponX, weaponVars))))
 	{
+		result = Cl_CalcWeaponMods(mods, unk_1, weaponVars, unk_3, unk_4);
 		SQObject* entInstance =
 			g_pSquirrel<ScriptContext::CLIENT>->__sq_createscriptinstance((void**)(weaponVars - offsetof(C_WeaponX, weaponVars)));
-		result = Cl_CalcWeaponMods(mods, unk_1, weaponVars, unk_3, unk_4);
 		g_pSquirrel<ScriptContext::CLIENT>->Call("CodeCallback_ApplyModWeaponVars", entInstance);
 	}
 	else
@@ -136,13 +134,13 @@ ADD_SQFUNC("void", ModWeaponVars_SetInt, "entity weapon, int weaponVar, int valu
 
 	if (context == ScriptContext::SERVER)
 	{
-		CWeaponX* weapon = (CWeaponX*)ent;
-		*(int*)(&weapon->weaponVars[varInfo->offset]) = value;
+		CMemory weapon = new CMemory(ent);
+		*(weapon.Offset(offsetof(CWeaponX, weaponVars)).Offset(varInfo->offset).RCast<int*>()) = value;
 	}
 	else // if (context == ScriptContext::CLIENT)
 	{
-		C_WeaponX* weapon = (C_WeaponX*)ent;
-		*(int*)(&weapon->weaponVars[varInfo->offset]) = value;
+		CMemory weapon = new CMemory(ent);
+		*(weapon.Offset(offsetof(C_WeaponX, weaponVars)).Offset(varInfo->offset).RCast<int*>()) = value;
 	}
 
 	return SQRESULT_NULL;
@@ -175,13 +173,13 @@ ADD_SQFUNC("void", ModWeaponVars_SetFloat, "entity weapon, int weaponVar, float 
 
 	if (context == ScriptContext::SERVER)
 	{
-		CWeaponX* weapon = (CWeaponX*)ent;
-		*(float*)(&weapon->weaponVars[varInfo->offset]) = value;
+		CMemory weapon = new CMemory(ent);
+		*(weapon.Offset(offsetof(CWeaponX, weaponVars)).Offset(varInfo->offset).RCast<float*>()) = value;
 	}
 	else // if (context == ScriptContext::CLIENT)
 	{
-		C_WeaponX* weapon = (C_WeaponX*)ent;
-		*(float*)(&weapon->weaponVars[varInfo->offset]) = value;
+		CMemory weapon = new CMemory(ent);
+		*(weapon.Offset(offsetof(C_WeaponX, weaponVars)).Offset(varInfo->offset).RCast<float*>()) = value;
 	}
 
 	return SQRESULT_NULL;
@@ -326,16 +324,6 @@ ADD_SQFUNC("void", ModWeaponVars_CalculateWeaponMods, "entity weapon", "", Scrip
 	return SQRESULT_NULL;
 }
 
-ON_DLL_LOAD_CLIENT("client.dll", ModWeaponVars_ClientInit, (CModule mod))
-{
-	const ScriptContext context = ScriptContext::CLIENT;
-	weaponVarArray<context> = mod.Offset(0x942ca0).RCast<WeaponVarInfo*>();
-	_CalculateWeaponValues<context> = mod.Offset(0x3CA060).RCast<calculateWeaponValuesType>();
-	get2ndParamForRecalcModFunc<context> = mod.Offset(0xBB4B0).RCast<get2ndParamForRecalcModFuncType>();
-	C_WeaponX_vftable = mod.Offset(0x998638).RCast<void*>();
-	AUTOHOOK_DISPATCH_MODULE(client.dll);
-}
-
 ON_DLL_LOAD("server.dll", ModWeaponVars_ServerInit, (CModule mod))
 {
 	const ScriptContext context = ScriptContext::SERVER;
@@ -344,4 +332,14 @@ ON_DLL_LOAD("server.dll", ModWeaponVars_ServerInit, (CModule mod))
 	get2ndParamForRecalcModFunc<context> = mod.Offset(0xF0CD0).RCast<get2ndParamForRecalcModFuncType>();
 	CWeaponX_vftable = mod.Offset(0x98E2B8).RCast<void*>();
 	AUTOHOOK_DISPATCH_MODULE(server.dll);
+}
+
+ON_DLL_LOAD_CLIENT("client.dll", ModWeaponVars_ClientInit, (CModule mod))
+{
+	const ScriptContext context = ScriptContext::CLIENT;
+	weaponVarArray<context> = mod.Offset(0x942ca0).RCast<WeaponVarInfo*>();
+	_CalculateWeaponValues<context> = mod.Offset(0x3CA060).RCast<calculateWeaponValuesType>();
+	get2ndParamForRecalcModFunc<context> = mod.Offset(0xBB4B0).RCast<get2ndParamForRecalcModFuncType>();
+	C_WeaponX_vftable = mod.Offset(0x998638).RCast<void*>();
+	AUTOHOOK_DISPATCH_MODULE(client.dll);
 }

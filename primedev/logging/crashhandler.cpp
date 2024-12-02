@@ -399,45 +399,38 @@ void CCrashHandler::FormatCallstack()
 		spdlog::error("\t{} + {:#x}", pszModuleFileName, reinterpret_cast<DWORD64>(pCrashOffset));
 	}
 
-	/*
+	
 	// script callstack
-	try
+	if (g_pSquirrel<ScriptContext::UI>->m_pSQVM && g_pSquirrel<ScriptContext::UI>->m_pSQVM->sqvm &&
+		g_pSquirrel<ScriptContext::UI>->m_pSQVM->sqvm->_callstacksize > 0)
 	{
-		for (int i = 1; i < 4; i++)
+		for (int i = 1; i <= g_pSquirrel<ScriptContext::UI>->m_pSQVM->sqvm->_callstacksize; i++)
+		{
+			SQStackInfos out;
+			g_pSquirrel<ScriptContext::UI>->sq_stackinfos(g_pSquirrel<ScriptContext::UI>->m_pSQVM->sqvm, i, out);
+			spdlog::error("UI Script: {}:{} ({})", out._sourceName, out._line, out._name);
+		}
+	}
+	if (g_pSquirrel<ScriptContext::SERVER>->m_pSQVM && g_pSquirrel<ScriptContext::SERVER>->m_pSQVM->sqvm &&
+		g_pSquirrel<ScriptContext::SERVER>->m_pSQVM->sqvm->_callstacksize > 0)
+	{
+		for (int i = 1; i <= g_pSquirrel<ScriptContext::SERVER>->m_pSQVM->sqvm->_callstacksize; i++)
 		{
 			SQStackInfos out;
 			g_pSquirrel<ScriptContext::SERVER>->sq_stackinfos(g_pSquirrel<ScriptContext::SERVER>->m_pSQVM->sqvm, i, out);
 			spdlog::error("SV Script: {}:{} ({})", out._sourceName, out._line, out._name);
 		}
 	}
-	catch (...)
+	if (g_pSquirrel<ScriptContext::CLIENT>->m_pSQVM && g_pSquirrel<ScriptContext::CLIENT>->m_pSQVM->sqvm &&
+		g_pSquirrel<ScriptContext::CLIENT>->m_pSQVM->sqvm->_callstacksize > 0)
 	{
-	}
-	try
-	{
-		for (int i = 1; i < 4; i++)
+		for (int i = 1; i < g_pSquirrel<ScriptContext::CLIENT>->m_pSQVM->sqvm->_callstacksize; i++)
 		{
 			SQStackInfos out;
 			g_pSquirrel<ScriptContext::CLIENT>->sq_stackinfos(g_pSquirrel<ScriptContext::CLIENT>->m_pSQVM->sqvm, i, out);
 			spdlog::error("CL Script: {}:{} ({})", out._sourceName, out._line, out._name);
 		}
 	}
-	catch (...)
-	{
-	}
-	try
-	{
-		for (int i = 1; i < 4; i++)
-		{
-			SQStackInfos out;
-			g_pSquirrel<ScriptContext::UI>->sq_stackinfos(g_pSquirrel<ScriptContext::UI>->m_pSQVM->sqvm, i, out);
-			spdlog::error("CL Script: {}:{} ({})", out._sourceName, out._line, out._name);
-		}
-	}
-	catch (...)
-	{
-	}
-	*/
 }
 
 //-----------------------------------------------------------------------------

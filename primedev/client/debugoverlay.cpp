@@ -2,7 +2,6 @@
 
 #include "core/convar/cvar.h"
 #include "core/math/vector.h"
-#include "server/ai_helper.h"
 
 AUTOHOOK_INIT()
 
@@ -282,11 +281,6 @@ void, __fastcall, (bool bRender))
 			pPrevOverlay = pCurrOverlay;
 			pCurrOverlay = pCurrOverlay->m_pNextOverlay;
 		}
-	}
-
-	if (bRender && Cvar_enable_debug_overlays->GetBool())
-	{
-		g_pAIHelper->DrawNavmeshPolys();
 	}
 
 	LeaveCriticalSection(s_OverlayMutex);

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/math/vector.h"
+#include "shared/statuseffects.h"
 
 // server entity stuff
 class CBaseEntity;
@@ -147,7 +148,9 @@ public:
 	bool m_useCredit; // 0x2964 ( Size: 1 )
 	char _unk_0x2965[51]; // 0x2965 ( Size: 51 )
 	float m_smartAmmoPreviousHighestLockOnMeFractionValue; // 0x2998 ( Size: 4 )
-	char _unk_0x299c[1292]; // 0x299c ( Size: 1292 )
+	char _unk_0x299c[892];
+	StatusEffectTimedData m_statusEffectsTimedPlayerNV[10];
+	StatusEffectEndlessData m_statusEffectsEndlessPlayerNV[10]; // 0x2E08 (size: 160)
 	int32_t m_pilotClassIndex; // 0x2ea8 ( Size: 4 )
 	char _unk_0x2eac[1456]; // 0x2eac ( Size: 1456 )
 	int32_t m_playerScriptNetDataGlobal; // 0x345c ( Size: 4 )
@@ -167,6 +170,8 @@ static_assert(offsetof(CBasePlayer, m_platformUserId) == 0x1D08);
 static_assert(offsetof(CBasePlayer, m_classModsActive) == 0x1D10);
 static_assert(offsetof(CBasePlayer, m_posClassModsActive) == 0x1D8C);
 static_assert(offsetof(CBasePlayer, m_passives) == 0x1DCC);
+static_assert(offsetof(CBasePlayer, m_statusEffectsTimedPlayerNV) == 0x2D18);
+static_assert(offsetof(CBasePlayer, m_statusEffectsEndlessPlayerNV) == 0x2E08);
 static_assert(offsetof(CBasePlayer, m_selectedOffhand) == 0x4948);
 static_assert(offsetof(CBasePlayer, m_selectedOffhandPendingHybridAction) == 0x1358);
 static_assert(offsetof(CBasePlayer, m_playerFlags) == 0x1E88);
