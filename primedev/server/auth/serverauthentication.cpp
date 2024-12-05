@@ -1,5 +1,4 @@
 #include "serverauthentication.h"
-#include "shared/exploit_fixes/ns_limits.h"
 #include "core/convar/cvar.h"
 #include "core/convar/convar.h"
 #include "server/serverpresence.h"
@@ -71,8 +70,6 @@ bool,, (CBaseClient* self, char* pName, void* pNetChannel, char bFakePlayer, voi
 	if (!CBaseClient__Connect(self, pName, pNetChannel, bFakePlayer, a5, pDisconnectReason, a7))
 		return false;
 
-	g_pServerLimits->AddPlayer(self);
-
 	return true;
 }
 
@@ -103,8 +100,6 @@ void,, (CBaseClient* self, uint32_t unknownButAlways1, const char* pReason, ...)
 		spdlog::info("Player {} disconnected: \"{}\"", self->m_Name, buf);
 
 		memset(self->m_PersistenceBuffer, 0, g_pServerAuthentication->m_PlayerAuthenticationData[self].pdataSize);
-
-		g_pServerLimits->RemovePlayer(self);
 	}
 
 	g_pServerPresence->SetPlayerCount((int)g_pServerAuthentication->m_PlayerAuthenticationData.size());

@@ -219,55 +219,6 @@ void MakeHook(LPVOID pTarget, LPVOID pDetour, void* ppOriginal, const char* pFun
 		spdlog::error("MH_CreateHook failed for function {}", pStrippedFuncName);
 }
 
-AUTOHOOK_ABSOLUTEADDR(_GetCommandLineA, (LPVOID)GetCommandLineA, LPSTR, WINAPI, ())
-{
-	static char* cmdlineModified;
-	static char* cmdlineOrg;
-
-	if (cmdlineOrg == nullptr || cmdlineModified == nullptr)
-	{
-		cmdlineOrg = _GetCommandLineA();
-		bool isDedi = strstr(cmdlineOrg, "-dedicated"); // well, this one has to be a real argument
-		bool ignoreStartupArgs = strstr(cmdlineOrg, "-nostartupargs");
-
-		std::string args;
-		std::ifstream cmdlineArgFile;
-
-		// it looks like CommandLine() prioritizes parameters apprearing first, so we want the real commandline to take priority
-		// not to mention that cmdlineOrg starts with the EXE path
-		args.append(cmdlineOrg);
-		args.append(" ");
-
-		// append those from the file
-
-		if (!ignoreStartupArgs)
-		{
-
-			cmdlineArgFile = std::ifstream(!isDedi ? "ns_startup_args.txt" : "ns_startup_args_dedi.txt");
-
-			if (cmdlineArgFile)
-			{
-				std::stringstream argBuffer;
-				argBuffer << cmdlineArgFile.rdbuf();
-				cmdlineArgFile.close();
-
-				args.append(argBuffer.str());
-			}
-		}
-
-		auto len = args.length();
-		cmdlineModified = new char[len + 1];
-		if (!cmdlineModified)
-		{
-			spdlog::error("malloc failed for command line");
-			return cmdlineOrg;
-		}
-		memcpy(cmdlineModified, args.c_str(), len + 1);
-	}
-
-	return cmdlineModified;
-}
-
 std::vector<std::string> calledTags;
 void CallLoadLibraryACallbacks(LPCSTR lpLibFileName, HMODULE moduleAddress)
 {

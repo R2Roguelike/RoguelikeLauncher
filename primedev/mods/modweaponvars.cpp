@@ -29,7 +29,7 @@ template <ScriptContext context> bool IsWeapon(void** ent)
 AUTOHOOK_INIT()
 
 // Name might be wrong, we're going off of frequency of calls
-AUTOHOOK(Cl_WeaponTick, client.dll + 0x59D1E0, bool, __fastcall, (C_WeaponX * weapon))
+/* AUTOHOOK(Cl_WeaponTick, client.dll + 0x59D1E0, bool, __fastcall, (C_WeaponX * weapon))
 {
 	SQObject* entInstance = g_pSquirrel<ScriptContext::CLIENT>->__sq_createscriptinstance(weapon);
 	g_pSquirrel<ScriptContext::CLIENT>->Call("CodeCallback_PredictWeaponMods", entInstance);
@@ -37,17 +37,24 @@ AUTOHOOK(Cl_WeaponTick, client.dll + 0x59D1E0, bool, __fastcall, (C_WeaponX * we
 	bool result = Cl_WeaponTick(weapon);
 
 	return result;
+}*/
+
+// Name might be wrong?
+AUTOHOOK(CWeaponX__RegenerateAmmo, server.dll + 0x69E7A0, int, , (CWeaponX * weapon, CBasePlayer* player, int offhandSlot))
+{
+	SQObject* entInstance = g_pSquirrel<ScriptContext::SERVER>->__sq_createscriptinstance(weapon);
+
+	g_pSquirrel<ScriptContext::SERVER>->Call("CodeCallback_DoWeaponModsForPlayer", entInstance);
+	int result = CWeaponX__RegenerateAmmo(weapon, player, offhandSlot);
+	return result;
 }
 
-// Name might be wrong, we're going off of frequency of calls
-AUTOHOOK(CPlayerSimulate, server.dll + 0x6894F0, bool, __fastcall, (CBasePlayer * player))
+AUTOHOOK(C_WeaponX__RegenerateAmmo, client.dll + 0x5B6020, int, , (C_WeaponX * weapon, CBasePlayer* player, int offhandSlot))
 {
-	SQObject* entInstance = g_pSquirrel<ScriptContext::SERVER>->__sq_createscriptinstance(player);
+	SQObject* entInstance = g_pSquirrel<ScriptContext::CLIENT>->__sq_createscriptinstance(weapon);
 
-	//g_pSquirrel<ScriptContext::SERVER>->Call("CodeCallback_DoWeaponModsForPlayer", entInstance);
-	bool result = CPlayerSimulate(player);
-	g_pSquirrel<ScriptContext::SERVER>->Call("CodeCallback_DoWeaponModsForPlayer", entInstance);
-
+	g_pSquirrel<ScriptContext::CLIENT>->Call("CodeCallback_PredictWeaponMods", entInstance);
+	int result = C_WeaponX__RegenerateAmmo(weapon, player, offhandSlot);
 	return result;
 }
 
@@ -134,13 +141,13 @@ ADD_SQFUNC("void", ModWeaponVars_SetInt, "entity weapon, int weaponVar, int valu
 
 	if (context == ScriptContext::SERVER)
 	{
-		CMemory weapon = new CMemory(ent);
-		*(weapon.Offset(offsetof(CWeaponX, weaponVars)).Offset(varInfo->offset).RCast<int*>()) = value;
+		CWeaponX* weapon = (CWeaponX*)ent;
+		*(int*)(&weapon->weaponVars[varInfo->offset]) = value;
 	}
 	else // if (context == ScriptContext::CLIENT)
 	{
-		CMemory weapon = new CMemory(ent);
-		*(weapon.Offset(offsetof(C_WeaponX, weaponVars)).Offset(varInfo->offset).RCast<int*>()) = value;
+		C_WeaponX* weapon = (C_WeaponX*)ent;
+		*(int*)(&weapon->weaponVars[varInfo->offset]) = value;
 	}
 
 	return SQRESULT_NULL;
@@ -173,13 +180,13 @@ ADD_SQFUNC("void", ModWeaponVars_SetFloat, "entity weapon, int weaponVar, float 
 
 	if (context == ScriptContext::SERVER)
 	{
-		CMemory weapon = new CMemory(ent);
-		*(weapon.Offset(offsetof(CWeaponX, weaponVars)).Offset(varInfo->offset).RCast<float*>()) = value;
+		CWeaponX* weapon = (CWeaponX*)ent;
+		*(float*)(&weapon->weaponVars[varInfo->offset]) = value;
 	}
 	else // if (context == ScriptContext::CLIENT)
 	{
-		CMemory weapon = new CMemory(ent);
-		*(weapon.Offset(offsetof(C_WeaponX, weaponVars)).Offset(varInfo->offset).RCast<float*>()) = value;
+		C_WeaponX* weapon = (C_WeaponX*)ent;
+		*(float*)(&weapon->weaponVars[varInfo->offset]) = value;
 	}
 
 	return SQRESULT_NULL;

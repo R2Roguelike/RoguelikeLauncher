@@ -19,12 +19,22 @@ void, __fastcall, (bool bDedicated))
 	// need to initialise these after host_init since they do stuff to preexisting concommands/convars without being client/server specific
 	InitialiseCommandPrint();
 	InitialiseMapsPrint();
-	// client/server autoexecs on necessary platforms
-	// dedi needs autoexec_ns_server on boot, while non-dedi will run it on on listen server start
-	if (bDedicated)
-		Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec autoexec_ns_server", cmd_source_t::kCommandSrcCode);
-	else
-		Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec autoexec_ns_client", cmd_source_t::kCommandSrcCode);
+}
+
+// ensure that GetLocalBaseClient().m_bRestrictServerCommands is set correctly, which the return value of this function controls
+// this is IsValveMod in source, but we're making it IsRespawnMod now since valve didn't make this one
+// clang-format off
+AUTOHOOK(IsRespawnMod, engine.dll + 0x1C6360,
+bool, __fastcall, (const char* pModName)) // 48 83 EC 28 48 8B 0D ? ? ? ? 48 8D 15 ? ? ? ? E8 ? ? ? ? 85 C0 74 63
+// clang-format on
+{
+	spdlog::info("MOD NAME {}", pModName);
+	// somewhat temp, store the modname here, since we don't have a proper ptr in engine to it rn
+	size_t iSize = strlen(pModName);
+	g_pModName = new char[iSize + 1];
+	strcpy(g_pModName, pModName);
+
+	return (false);
 }
 
 ON_DLL_LOAD("engine.dll", Host_Init, (CModule module))

@@ -1,6 +1,5 @@
 #include "core/convar/convar.h"
 #include "engine/r2engine.h"
-#include "shared/exploit_fixes/ns_limits.h"
 
 #include <string>
 #include <thread>
@@ -87,10 +86,6 @@ AUTOHOOK(ProcessConnectionlessPacket, engine.dll + 0x117800, bool, , (void* a1, 
 	// packet->data consists of 0xFFFFFFFF (int32 -1) to indicate packets aren't split, followed by a header consisting of a single
 	// character, which is used to uniquely identify the packet kind. Most kinds follow this with a null-terminated string payload
 	// then an arbitrary amoount of data.
-
-	// check rate limits for the original unconnected packets
-	if (!g_pServerLimits->CheckConnectionlessPacketLimits(packet))
-		return false;
 
 	// A, H, I, N
 	return ProcessConnectionlessPacket(a1, packet);
