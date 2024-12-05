@@ -239,7 +239,7 @@ ADD_SQFUNC("void", NSSaveFile, "string file, string data", "", ScriptContext::SE
 		return SQRESULT_ERROR;
 	}
 
-	fs::path dir = savePath / fs::path(mod->m_ModDirectory).filename();
+	fs::path dir = savePath;
 	std::string fileName = g_pSquirrel<context>->getstring(sqvm, 1);
 	if (!IsPathSafe(fileName, dir))
 	{
@@ -266,17 +266,6 @@ ADD_SQFUNC("void", NSSaveFile, "string file, string data", "", ScriptContext::SE
 	// this actually allows mods to go over the limit, but not by much
 	// the limit is to prevent mods from taking gigabytes of space,
 	// this ain't a cloud service.
-	if (GetSizeOfFolderContentsMinusFile(dir, fileName) + content.length() > MAX_FOLDER_SIZE)
-	{
-		g_pSquirrel<context>->raiseerror(
-			sqvm,
-			fmt::format(
-				"The mod {} has reached the maximum folder size.\n\nAsk the mod developer to optimize their data usage,"
-				"or increase the maximum folder size using the -maxfoldersize launch parameter.",
-				mod->Name)
-				.c_str());
-		return SQRESULT_ERROR;
-	}
 
 	g_pSaveFileManager->SaveFileAsync<context>(dir / fileName, content);
 
@@ -293,7 +282,7 @@ ADD_SQFUNC("void", NSSaveJSONFile, "string file, table data", "", ScriptContext:
 		return SQRESULT_ERROR;
 	}
 
-	fs::path dir = savePath / fs::path(mod->m_ModDirectory).filename();
+	fs::path dir = savePath;
 	std::string fileName = g_pSquirrel<context>->getstring(sqvm, 1);
 	if (!IsPathSafe(fileName, dir))
 	{
@@ -349,7 +338,7 @@ ADD_SQFUNC("int", NS_InternalLoadFile, "string file", "", ScriptContext::SERVER 
 		return SQRESULT_ERROR;
 	}
 
-	fs::path dir = savePath / fs::path(mod->m_ModDirectory).filename();
+	fs::path dir = savePath;
 	std::string fileName = g_pSquirrel<context>->getstring(sqvm, 1);
 	if (!IsPathSafe(fileName, dir))
 	{
@@ -374,7 +363,7 @@ ADD_SQFUNC("bool", NSDoesFileExist, "string file", "", ScriptContext::SERVER | S
 {
 	Mod* mod = g_pSquirrel<context>->getcallingmod(sqvm);
 
-	fs::path dir = savePath / fs::path(mod->m_ModDirectory).filename();
+	fs::path dir = savePath;
 	std::string fileName = g_pSquirrel<context>->getstring(sqvm, 1);
 	if (!IsPathSafe(fileName, dir))
 	{
@@ -398,7 +387,7 @@ ADD_SQFUNC("int", NSGetFileSize, "string file", "", ScriptContext::SERVER | Scri
 {
 	Mod* mod = g_pSquirrel<context>->getcallingmod(sqvm);
 
-	fs::path dir = savePath / fs::path(mod->m_ModDirectory).filename();
+	fs::path dir = savePath;
 	std::string fileName = g_pSquirrel<context>->getstring(sqvm, 1);
 	if (!IsPathSafe(fileName, dir))
 	{
@@ -432,7 +421,7 @@ ADD_SQFUNC("void", NSDeleteFile, "string file", "", ScriptContext::SERVER | Scri
 {
 	Mod* mod = g_pSquirrel<context>->getcallingmod(sqvm);
 
-	fs::path dir = savePath / fs::path(mod->m_ModDirectory).filename();
+	fs::path dir = savePath;
 	std::string fileName = g_pSquirrel<context>->getstring(sqvm, 1);
 	if (!IsPathSafe(fileName, dir))
 	{
@@ -456,7 +445,7 @@ ADD_SQFUNC("array<string>", NS_InternalGetAllFiles, "string path", "", ScriptCon
 {
 	// depth 1 because this should always get called from Roguelike.Custom
 	Mod* mod = g_pSquirrel<context>->getcallingmod(sqvm, 1);
-	fs::path dir = savePath / fs::path(mod->m_ModDirectory).filename();
+	fs::path dir = savePath;
 	std::string pathStr = g_pSquirrel<context>->getstring(sqvm, 1);
 	fs::path path = dir;
 	if (pathStr != "")
@@ -494,7 +483,7 @@ ADD_SQFUNC("array<string>", NS_InternalGetAllFiles, "string path", "", ScriptCon
 ADD_SQFUNC("bool", NSIsFolder, "string path", "", ScriptContext::CLIENT | ScriptContext::UI | ScriptContext::SERVER)
 {
 	Mod* mod = g_pSquirrel<context>->getcallingmod(sqvm);
-	fs::path dir = savePath / fs::path(mod->m_ModDirectory).filename();
+	fs::path dir = savePath;
 	std::string pathStr = g_pSquirrel<context>->getstring(sqvm, 1);
 	fs::path path = dir;
 	if (pathStr != "")
@@ -529,7 +518,7 @@ ADD_SQFUNC("bool", NSIsFolder, "string path", "", ScriptContext::CLIENT | Script
 ADD_SQFUNC("int", NSGetTotalSpaceRemaining, "", "", ScriptContext::CLIENT | ScriptContext::UI | ScriptContext::SERVER)
 {
 	Mod* mod = g_pSquirrel<context>->getcallingmod(sqvm);
-	fs::path dir = savePath / fs::path(mod->m_ModDirectory).filename();
+	fs::path dir = savePath;
 	g_pSquirrel<context>->pushinteger(sqvm, (MAX_FOLDER_SIZE - GetSizeOfFolder(dir)) / 1024);
 	return SQRESULT_NOTNULL;
 }
@@ -557,7 +546,7 @@ template <ScriptContext context> std::string EncodeJSON(HSquirrelVM* sqvm)
 	return buffer.GetString();
 }
 
-ON_DLL_LOAD("engine.dll", ModSaveFFiles_Init, (CModule module))
+ON_DLL_LOAD("engine.dll", ModSaveFiles_Init, (CModule module))
 {
 	savePath = fs::path(GetRoguelikePrefix()) / "save_data";
 	g_pSaveFileManager = new SaveFileManager;
