@@ -10,8 +10,8 @@ std::map<size_t, std::string> sv_modWeaponVarStrings;
 std::map<size_t, std::string> cl_modWeaponVarStrings;
 std::hash<std::string> hasher;
 
-typedef bool (*calculateWeaponValuesType)(int bitfield, void* weapon, void* weaponVarLocation);
-typedef char* (*get2ndParamForRecalcModFuncType)(void* weapon);
+typedef bool (*calculateWeaponValuesType)(int bitfield, __int64 weapon, void* weaponVarLocation);
+typedef __int64 (*get2ndParamForRecalcModFuncType)(void* weapon);
 
 template <ScriptContext context> get2ndParamForRecalcModFuncType get2ndParamForRecalcModFunc;
 template <ScriptContext context> calculateWeaponValuesType _CalculateWeaponValues;
@@ -40,28 +40,28 @@ AUTOHOOK_INIT()
 }*/
 
 // Name might be wrong?
-AUTOHOOK(CWeaponX__RegenerateAmmo, server.dll + 0x69E7A0, int, , (CWeaponX * weapon, CBasePlayer* player, int offhandSlot))
+AUTOHOOK(CWeaponX__RegenerateAmmo, server.dll + 0x69E7A0, void, , (CWeaponX * weapon, CBasePlayer* player, int offhandSlot))
 {
 	SQObject* entInstance = g_pSquirrel<ScriptContext::SERVER>->__sq_createscriptinstance(weapon);
 
-	g_pSquirrel<ScriptContext::SERVER>->Call("CodeCallback_DoWeaponModsForPlayer", entInstance);
-	int result = CWeaponX__RegenerateAmmo(weapon, player, offhandSlot);
-	return result;
+	if (offhandSlot == 0)
+		g_pSquirrel<ScriptContext::SERVER>->Call("CodeCallback_DoWeaponModsForPlayer", entInstance);
+	CWeaponX__RegenerateAmmo(weapon, player, offhandSlot);
 }
 
-AUTOHOOK(C_WeaponX__RegenerateAmmo, client.dll + 0x5B6020, int, , (C_WeaponX * weapon, CBasePlayer* player, int offhandSlot))
+AUTOHOOK(C_WeaponX__RegenerateAmmo, client.dll + 0x5B3830, void, , (C_WeaponX * weapon, CBasePlayer* player, int offhandSlot))
 {
 	SQObject* entInstance = g_pSquirrel<ScriptContext::CLIENT>->__sq_createscriptinstance(weapon);
 
-	g_pSquirrel<ScriptContext::CLIENT>->Call("CodeCallback_PredictWeaponMods", entInstance);
-	int result = C_WeaponX__RegenerateAmmo(weapon, player, offhandSlot);
-	return result;
+	if (offhandSlot == 0)
+		g_pSquirrel<ScriptContext::CLIENT>->Call("CodeCallback_PredictWeaponMods", entInstance);
+	C_WeaponX__RegenerateAmmo(weapon, player, offhandSlot);
 }
 
-bool IsBadReadPtr(void* p)
+bool IsBadReadPtr(uintptr_t p)
 {
 	MEMORY_BASIC_INFORMATION mbi = {0};
-	if (::VirtualQuery(p, &mbi, sizeof(mbi)))
+	if (::VirtualQuery((const void*)p, &mbi, sizeof(mbi)))
 	{
 		DWORD mask =
 			(PAGE_READONLY | PAGE_READWRITE | PAGE_WRITECOPY | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY);
@@ -75,29 +75,24 @@ bool IsBadReadPtr(void* p)
 	return true;
 }
 
-AUTOHOOK(Cl_CalcWeaponMods, client.dll + 0x3CA0B0, bool, __fastcall, (int mods, char* unk_1, char* weaponVars, bool unk_3, int unk_4))
+AUTOHOOK(Cl_CalcWeaponMods, client.dll + 0x3CA0B0, bool, __fastcall, (int mods, char* unk_1, uintptr_t weaponVars, bool unk_3, int unk_4))
 {
-	bool result;
+	bool result = Cl_CalcWeaponMods(mods, unk_1, weaponVars, unk_3, unk_4);
 
 	if (IsBadReadPtr(weaponVars - offsetof(C_WeaponX, weaponVars)))
-		return Cl_CalcWeaponMods(mods, unk_1, weaponVars, unk_3, unk_4);
+		return result;
 
-	if (IsWeapon<ScriptContext::CLIENT>((void**)(weaponVars - offsetof(C_WeaponX, weaponVars))))
+	if (result && IsWeapon<ScriptContext::CLIENT>((void**)(weaponVars - offsetof(C_WeaponX, weaponVars))))
 	{
-		result = Cl_CalcWeaponMods(mods, unk_1, weaponVars, unk_3, unk_4);
 		SQObject* entInstance =
 			g_pSquirrel<ScriptContext::CLIENT>->__sq_createscriptinstance((void**)(weaponVars - offsetof(C_WeaponX, weaponVars)));
 		g_pSquirrel<ScriptContext::CLIENT>->Call("CodeCallback_ApplyModWeaponVars", entInstance);
-	}
-	else
-	{
-		return Cl_CalcWeaponMods(mods, unk_1, weaponVars, unk_3, unk_4);
 	}
 
 	return result;
 }
 
-AUTOHOOK(Sv_CalcWeaponMods, server.dll + 0x6C8B80, bool, __fastcall, (int unk_0, char* unk_1, char* weaponVars, bool unk_3, int unk_4))
+AUTOHOOK(Sv_CalcWeaponMods, server.dll + 0x6C8B80, bool, __fastcall, (int unk_0, char* unk_1, uintptr_t weaponVars, bool unk_3, int unk_4))
 {
 	bool result = Sv_CalcWeaponMods(unk_0, unk_1, weaponVars, unk_3, unk_4);
 
@@ -310,7 +305,8 @@ ADD_SQFUNC("void", ModWeaponVars_CalculateWeaponMods, "entity weapon", "", Scrip
 	if (context == ScriptContext::SERVER)
 	{
 		CWeaponX* weapon = (CWeaponX*)ent;
-		char* secondParamForCalcWeaponValues = get2ndParamForRecalcModFunc<context>(weapon);
+		__int64 secondParamForCalcWeaponValues = get2ndParamForRecalcModFunc<context>(weapon);
+
 		if (!_CalculateWeaponValues<context>(weapon->currentModBitfield, secondParamForCalcWeaponValues, (void*)&weapon->weaponVars))
 		{
 			g_pSquirrel<context>->raiseerror(sqvm, "Weapon var calculation failed...");
@@ -320,7 +316,8 @@ ADD_SQFUNC("void", ModWeaponVars_CalculateWeaponMods, "entity weapon", "", Scrip
 	else
 	{
 		C_WeaponX* weapon = (C_WeaponX*)ent;
-		char* secondParamForCalcWeaponValues = get2ndParamForRecalcModFunc<context>(weapon);
+		__int64 secondParamForCalcWeaponValues = get2ndParamForRecalcModFunc<context>(weapon);
+
 		if (!_CalculateWeaponValues<context>(weapon->currentModBitfield, secondParamForCalcWeaponValues, (void*)&weapon->weaponVars))
 		{
 			g_pSquirrel<context>->raiseerror(sqvm, "Weapon var calculation failed...");
