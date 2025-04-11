@@ -194,3 +194,10 @@ ADD_SQFUNC("void", DumpCallstack, "", "", ScriptContext::UI | ScriptContext::SER
 	}
 	return SQRESULT_NULL;
 }
+
+ADD_SQFUNC("void", PrintEntityAddress, "entity ent", "", ScriptContext::SERVER | ScriptContext::CLIENT)
+{
+	const void* pPlayer = g_pSquirrel<context>->getentity<void>(sqvm, 1);
+	spdlog::info("Entity Address: {}", pPlayer);
+	return SQRESULT_NULL;
+}

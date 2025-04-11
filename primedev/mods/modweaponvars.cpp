@@ -49,13 +49,13 @@ AUTOHOOK(CWeaponX__RegenerateAmmo, server.dll + 0x69E7A0, void, , (CWeaponX * we
 	CWeaponX__RegenerateAmmo(weapon, player, offhandSlot);
 }
 
-AUTOHOOK(C_WeaponX__RegenerateAmmo, client.dll + 0x5B3830, void, , (C_WeaponX * weapon, CBasePlayer* player, int offhandSlot))
+AUTOHOOK(C_WeaponX__RegenerateAmmo, client.dll + 0x5B3830, int, , (C_WeaponX * weapon, CBasePlayer* player, int offhandSlot))
 {
 	SQObject* entInstance = g_pSquirrel<ScriptContext::CLIENT>->__sq_createscriptinstance(weapon);
 
 	if (offhandSlot == 0)
 		g_pSquirrel<ScriptContext::CLIENT>->Call("CodeCallback_PredictWeaponMods", entInstance);
-	C_WeaponX__RegenerateAmmo(weapon, player, offhandSlot);
+	return C_WeaponX__RegenerateAmmo(weapon, player, offhandSlot);
 }
 
 bool IsBadReadPtr(uintptr_t p)
