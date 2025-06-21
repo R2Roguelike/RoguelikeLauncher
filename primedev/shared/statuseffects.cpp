@@ -192,6 +192,14 @@ ADD_SQFUNC("void", DumpCallstack, "", "", ScriptContext::UI | ScriptContext::SER
 		// Log module + offset
 		spdlog::info("\t{} + {:#x}", pszModuleFileName, reinterpret_cast<DWORD64>(pCrashOffset));
 	}
+
+	for (int i = 1; i < g_pSquirrel<context>->m_pSQVM->sqvm->_callstacksize; i++)
+	{
+		SQStackInfos out;
+		g_pSquirrel<context>->sq_stackinfos(g_pSquirrel<context>->m_pSQVM->sqvm, i, out);
+		spdlog::info("CL Script: {}:{} ({})", out._sourceName, out._line, out._name);
+	}
+
 	return SQRESULT_NULL;
 }
 

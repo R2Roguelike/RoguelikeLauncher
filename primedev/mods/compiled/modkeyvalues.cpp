@@ -69,7 +69,7 @@ void ModManager::TryBuildKeyValues(const char* filename)
 
 	// iterate until we hit an ascii char that isn't in a # command or comment to get root obj name
 	int i = 0;
-	while (!(originalFile[i] >= 65 && originalFile[i] <= 122))
+	while (originalFile[i] < 48 || originalFile[i] > 122)
 	{
 		// if we hit a comment or # thing, iterate until end of line
 		if (originalFile[i] == '/' || originalFile[i] == '#')
@@ -79,8 +79,9 @@ void ModManager::TryBuildKeyValues(const char* filename)
 		i++;
 	}
 
+	//spdlog::info("{}, {}", i, originalFile[i]);
 	int j = 0;
-	for (int j = 0; originalFile[i] >= 65 && originalFile[i] <= 122; j++)
+	for (int j = 0; originalFile[i] >= 48 && originalFile[i] <= 122; j++)
 		rootName[j] = originalFile[i++];
 
 	// empty kv, all the other stuff gets #base'd
