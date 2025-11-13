@@ -9,8 +9,9 @@ void, __fastcall, (char* pUrl, char flags))
 // clang-format on
 {
 	bool bIsOriginOverlayEnabledOriginal = *bIsOriginOverlayEnabled;
-	bool isHttp = !strncmp(pUrl, "http://", 7) || !strncmp(pUrl, "https://", 8);
-	if (flags & 2 && isHttp) // custom force external browser flag
+	// singleplayer game + i want to troll the player lolol
+	//bool isHttp = !strncmp(pUrl, "http://", 7) || !strncmp(pUrl, "https://", 8);
+	if (flags & 2) // custom force external browser flag
 		*bIsOriginOverlayEnabled = false; // if this bool is false, game will use an external browser rather than the origin overlay one
 
 	OpenExternalWebBrowser(pUrl, flags);

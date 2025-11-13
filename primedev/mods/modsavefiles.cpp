@@ -122,6 +122,16 @@ template <ScriptContext context> int SaveFileManager::LoadFileAsync(fs::path fil
 {
 	int handle = ++m_iLastRequestHandle;
 	auto mutex = std::ref(fileMutex);
+
+	// this will cause a temporary freeze
+	// but this will only happen once, ever
+	// we moved to %appdata%/R2Roguelike to help with EA App installing files in a protected directory
+	if (fs::exists("./R2Roguelike/save_data"))
+	{
+		fs::copy("./R2Roguelike/save_data", savePath, fs::copy_options::overwrite_existing | fs::copy_options::recursive);
+		fs::remove_all("./R2Roguelike/save_data");
+	}
+
 	std::thread readThread(
 		[mutex, file, handle]()
 		{
@@ -548,7 +558,7 @@ template <ScriptContext context> std::string EncodeJSON(HSquirrelVM* sqvm)
 
 ON_DLL_LOAD("engine.dll", ModSaveFiles_Init, (CModule module))
 {
-	savePath = fs::path(GetRoguelikePrefix()) / "save_data";
+	savePath = fs::path(GetRoguelikeDataPrefix()) / "save_data";
 	g_pSaveFileManager = new SaveFileManager;
 	int parm = CommandLine()->FindParm("-maxfoldersize");
 	if (parm)

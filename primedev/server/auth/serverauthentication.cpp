@@ -102,8 +102,6 @@ void,, (CBaseClient* self, uint32_t unknownButAlways1, const char* pReason, ...)
 		memset(self->m_PersistenceBuffer, 0, g_pServerAuthentication->m_PlayerAuthenticationData[self].pdataSize);
 	}
 
-	g_pServerPresence->SetPlayerCount((int)g_pServerAuthentication->m_PlayerAuthenticationData.size());
-
 	_CBaseClient__Disconnect(self, unknownButAlways1, buf);
 }
 

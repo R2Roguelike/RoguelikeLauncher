@@ -1,6 +1,13 @@
 #include "config/profile.h"
 #include <string>
 
+std::string GetRoguelikeDataPrefix()
+{
+	char appdata[MAX_PATH];
+	GetEnvironmentVariableA("APPDATA", appdata, MAX_PATH);
+	return fmt::format("{:s}/R2Roguelike", appdata);
+}
+
 std::string GetRoguelikePrefix()
 {
 	return ROGUELIKE_FOLDER_PREFIX;

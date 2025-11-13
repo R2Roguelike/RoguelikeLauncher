@@ -36,7 +36,6 @@ public:
 	std::unordered_map<CBaseClient*, PlayerAuthenticationData> m_PlayerAuthenticationData;
 
 	bool m_bAllowDuplicateAccounts = false;
-	bool m_bNeedLocalAuthForNewgame = false;
 	bool m_bStartingLocalSPGame = false;
 };
 

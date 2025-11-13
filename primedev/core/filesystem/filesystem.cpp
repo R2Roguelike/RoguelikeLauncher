@@ -133,6 +133,8 @@ FileHandle_t, __fastcall, (IFileSystem* filesystem, const char* pPath, const cha
 	return CBaseFileSystem__OpenEx(filesystem, pPath, pOptions, flags, pPathID, ppszResolvedFilename);
 }
 
+bool loadedMpCommon = false;
+bool loadedFoldWeapon = false;
 HOOK(MountVPKHook, MountVPK, VPKData*, , (IFileSystem * fileSystem, const char* pVpkPath))
 {
 	NS::log::fs->info("MountVPK {}", pVpkPath);
@@ -163,10 +165,18 @@ HOOK(MountVPKHook, MountVPK, VPKData*, , (IFileSystem * fileSystem, const char* 
 	}
 
 	// [15:08:08] [FILESYSTM] [info] MountVPK vpk/client_sp_crashsite.bsp
-	if (pVpkPath != "vpk/client_mp_common.bsp")
+	// so we only need to load these once
+	// so uhm just dont load them again!
+	if (pVpkPath != "vpk/client_mp_common.bsp" && !loadedMpCommon)
+	{
 		MountVPK(fileSystem, "vpk/client_mp_common.bsp");
-	if (pVpkPath != "vpk/client_sp_skyway_v1.bsp")
+		loadedMpCommon = true;
+	}
+	if (pVpkPath != "vpk/client_sp_skyway_v1.bsp" && !loadedFoldWeapon)
+	{
 		MountVPK(fileSystem, "vpk/client_sp_skyway_v1.bsp");
+		loadedFoldWeapon = true;
+	}
 
 	return ret;
 }

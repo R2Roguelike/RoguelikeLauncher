@@ -21,26 +21,6 @@ void ServerStartingOrChangingMap()
 {
 	ConVar* Cvar_mp_gamemode = g_pCVar->FindVar("mp_gamemode");
 
-	// directly call _Cmd_Exec_f to avoid weirdness with ; being in mp_gamemode potentially
-	// if we ran exec {mp_gamemode} and mp_gamemode contained semicolons, this could be used to execute more commands
-	char* commandBuf[1040]; // assumedly this is the size of CCommand since we don't have an actual constructor
-	memset(commandBuf, 0, sizeof(commandBuf));
-	CCommand tempCommand = *(CCommand*)&commandBuf;
-	if (sLastMode.length() &&
-		CCommand__Tokenize(tempCommand, fmt::format("exec server/cleanup_gamemode_{}", sLastMode).c_str(), cmd_source_t::kCommandSrcCode))
-		_Cmd_Exec_f(tempCommand, false, false);
-
-	memset(commandBuf, 0, sizeof(commandBuf));
-	if (CCommand__Tokenize(
-			tempCommand,
-			fmt::format("exec server/setup_gamemode_{}", sLastMode = Cvar_mp_gamemode->GetString()).c_str(),
-			cmd_source_t::kCommandSrcCode))
-	{
-		_Cmd_Exec_f(tempCommand, false, false);
-	}
-
-	Cbuf_Execute(); // exec everything right now
-
 	// net_data_block_enabled is required for sp, force it if we're on an sp map
 	// sucks for security but just how it be
 	if (!strncmp(g_pHostState->m_levelName, "sp_", 3))
@@ -59,26 +39,11 @@ void, __fastcall, (CHostState* self))
 {
 	spdlog::info("HostState: NewGame");
 
-	Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec autoexec_ns_server", cmd_source_t::kCommandSrcCode);
-	Cbuf_Execute();
-
-	// need to do this to ensure we don't go to private match
-	if (g_pServerAuthentication->m_bNeedLocalAuthForNewgame)
-		R2::SetCurrentPlaylist("tdm");
-
 	ServerStartingOrChangingMap();
 
 	double dStartTime = Plat_FloatTime();
 	CHostState__State_NewGame(self);
 	spdlog::info("loading took {}s", Plat_FloatTime() - dStartTime);
-
-	// setup server presence
-	g_pServerPresence->CreatePresence();
-	g_pServerPresence->SetMap(g_pHostState->m_levelName, true);
-	g_pServerPresence->SetPlaylist(R2::GetCurrentPlaylistName());
-	g_pServerPresence->SetPort(Cvar_hostport->GetInt());
-
-	g_pServerAuthentication->m_bNeedLocalAuthForNewgame = false;
 }
 
 // clang-format off
@@ -101,11 +66,6 @@ void, __fastcall, (CHostState* self))
 	double dStartTime = Plat_FloatTime();
 	CHostState__State_LoadGame(self);
 	spdlog::info("loading took {}s", Plat_FloatTime() - dStartTime);
-
-	// no server presence, can't do it because no map name in hoststate
-	// and also not super important for sp saves really
-
-	g_pServerAuthentication->m_bNeedLocalAuthForNewgame = false;
 }
 
 // clang-format off
@@ -120,8 +80,6 @@ void, __fastcall, (CHostState* self))
 	double dStartTime = Plat_FloatTime();
 	CHostState__State_ChangeLevelMP(self);
 	spdlog::info("loading took {}s", Plat_FloatTime() - dStartTime);
-
-	g_pServerPresence->SetMap(g_pHostState->m_levelName);
 }
 
 // clang-format off
@@ -130,8 +88,6 @@ void, __fastcall, (CHostState* self))
 // clang-format on
 {
 	spdlog::info("HostState: GameShutdown");
-
-	g_pServerPresence->DestroyPresence();
 
 	CHostState__State_GameShutdown(self);
 

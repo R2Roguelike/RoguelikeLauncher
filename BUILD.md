@@ -35,7 +35,7 @@ Developers who can work a command line may be interested in using [Visual Studio
 
 - Run `cmake . -G "Ninja"` to generate build files.
 
-- Run `cmake --build .` to build the project.
+- Run `cmake --build .` to build the project
 
 ## Linux
 ### Steps

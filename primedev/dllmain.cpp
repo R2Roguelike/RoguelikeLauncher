@@ -66,8 +66,6 @@ bool InitialiseRoguelike()
 
 	InstallInitialHooks();
 
-	g_pServerPresence = new ServerPresenceManager();
-
 	g_pPluginManager = new PluginManager();
 	g_pPluginManager->LoadPlugins();
 

@@ -20,7 +20,7 @@ namespace R2
 ConVar* Cvar_ns_use_clc_SetPlaylistVarOverride;
 
 // clang-format off
-AUTOHOOK(clc_SetPlaylistVarOverride__Process, engine.dll + 0x222180,
+/*AUTOHOOK(clc_SetPlaylistVarOverride__Process, engine.dll + 0x222180,
 char, __fastcall, (void* a1, void* a2))
 // clang-format on
 {
@@ -39,14 +39,8 @@ bool, __fastcall, (const char* pPlaylistName))
 {
 	bool bSuccess = SetCurrentPlaylist(pPlaylistName);
 
-	if (bSuccess)
-	{
-		//spdlog::info("Set playlist to {}", R2::GetCurrentPlaylistName());
-		g_pServerPresence->SetPlaylist(R2::GetCurrentPlaylistName());
-	}
-
 	return bSuccess;
-}
+}*/
 
 // clang-format off
 AUTOHOOK(SetPlaylistVarOverride, engine.dll + 0x18ED00,

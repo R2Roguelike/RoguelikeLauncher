@@ -1135,11 +1135,11 @@ fs::path GetThunderstoreModFolderPath()
 }
 fs::path GetRemoteModFolderPath()
 {
-	return fs::path(GetRoguelikePrefix() + REMOTE_MOD_FOLDER_SUFFIX);
+	return fs::path(GetRoguelikeDataPrefix() + REMOTE_MOD_FOLDER_SUFFIX);
 }
 fs::path GetCompiledAssetsPath()
 {
-	return fs::path(GetRoguelikePrefix() + COMPILED_ASSETS_SUFFIX);
+	return fs::path(GetRoguelikeDataPrefix() + COMPILED_ASSETS_SUFFIX);
 }
 
 ON_DLL_LOAD_RELIESON("engine.dll", ModManager, (ConCommand), (CModule module))

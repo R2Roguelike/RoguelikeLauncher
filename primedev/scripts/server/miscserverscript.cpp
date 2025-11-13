@@ -21,6 +21,33 @@ ADD_SQFUNC("bool", NSIsPlayerLocalPlayer, "entity player", "", ScriptContext::SE
 	return SQRESULT_NOTNULL;
 }
 
+// script Roguelike_Player_SetDodgeSpeed(__p(), 1)
+ADD_SQFUNC("void", Roguelike_Player_SetDodgeSpeed, "entity player, float val", "", ScriptContext::SERVER | ScriptContext::CLIENT)
+{
+	const CMemory pPlayer = new CMemory(g_pSquirrel<context>->template getentity<CBasePlayer>(sqvm, 1));
+
+
+	CMemory dodgeSpeed = pPlayer.Deref().Offset(context == ScriptContext::SERVER ? 0x1D30 : 0x2050);
+
+	spdlog::warn("{}", dodgeSpeed.GetPtr());
+
+	*(dodgeSpeed.CCast<float*>()) = g_pSquirrel<context>->getfloat(sqvm, 2);
+	
+	return SQRESULT_NOTNULL;
+}
+ADD_SQFUNC("void", Roguelike_Player_SetDodgeDrain, "entity player, float val", "", ScriptContext::SERVER | ScriptContext::CLIENT)
+{
+	const CMemory pPlayer = new CMemory(g_pSquirrel<context>->template getentity<void>(sqvm, 1));
+
+	CMemory dodgeSpeed = pPlayer.Deref().Offset(context == ScriptContext::SERVER ? 0x1D34 : 0x2054);
+
+	spdlog::warn("{}", dodgeSpeed.GetPtr());
+
+	*(dodgeSpeed.CCast<float*>()) = g_pSquirrel<context>->getfloat(sqvm, 2);
+
+	return SQRESULT_NOTNULL;
+}
+
 ADD_SQFUNC(
 	"bool",
 	NSDisconnectPlayer,

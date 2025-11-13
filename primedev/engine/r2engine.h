@@ -285,6 +285,9 @@ public:
 
 	const char* m_pMapName; // 0x60 ( Size: 8 )
 	int m_nMapVersion; // 0x68 ( Size: 4 )
+
+	char _unk_0x6c[20];
+	int m_nMaxEntities;
 };
 static_assert(offsetof(CGlobalVars, m_flRealTime) == 0x0);
 static_assert(offsetof(CGlobalVars, m_nFrameCount) == 0x8);
@@ -297,5 +300,6 @@ static_assert(offsetof(CGlobalVars, m_nTickCount) == 0x3c);
 static_assert(offsetof(CGlobalVars, m_flTickInterval) == 0x40);
 static_assert(offsetof(CGlobalVars, m_pMapName) == 0x60);
 static_assert(offsetof(CGlobalVars, m_nMapVersion) == 0x68);
+static_assert(offsetof(CGlobalVars, m_nMaxEntities) == 0x80);
 
 extern CGlobalVars* g_pGlobals;
