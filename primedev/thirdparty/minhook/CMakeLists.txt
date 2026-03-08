@@ -1,4 +1,4 @@
-#  MinHook - The Minimalistic API Hooking Library for x64/x86
+﻿#  MinHook - The Minimalistic API Hooking Library for x64/x86
 #  Copyright (C) 2009-2017 Tsuda Kageyu.
 #  All rights reserved.
 #
@@ -24,7 +24,7 @@
 #  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.5)
 
 project(minhook LANGUAGES C)
 

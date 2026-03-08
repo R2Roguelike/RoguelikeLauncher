@@ -124,6 +124,9 @@ void CustomSink::custom_log(const custom_log_msg& msg)
 
 void InitialiseConsole()
 {
+	if (strstr(GetCommandLineA(), "-console") == NULL)
+		return;
+
 	if (AllocConsole() == FALSE)
 	{
 		std::cout << "[*] Failed to create a console window" << std::endl;
@@ -133,6 +136,7 @@ void InitialiseConsole()
 		freopen("CONOUT$", "w", stdout);
 		freopen("CONOUT$", "w", stderr);
 	}
+	spdlog::info("legally, this is shit");
 
 	// this if statement is adapted from r5sdk
 	if (!strstr(GetCommandLineA(), "-noansiclr"))

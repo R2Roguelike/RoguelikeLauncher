@@ -1048,7 +1048,7 @@ void ModManager::UnloadMods()
 	m_ModFiles.clear();
 	fs::remove_all(GetCompiledAssetsPath());
 
-	g_CustomAudioManager.ClearAudioOverrides();
+	//g_CustomAudioManager.ClearAudioOverrides();
 
 	if (!m_bHasEnabledModsCfg)
 		m_EnabledModsCfg.SetObject();
@@ -1131,7 +1131,7 @@ fs::path GetModFolderPath()
 }
 fs::path GetThunderstoreModFolderPath()
 {
-	return fs::path(GetRoguelikePrefix() + THUNDERSTORE_MOD_FOLDER_SUFFIX);
+	return fs::path(GetRoguelikeDataPrefix() + THUNDERSTORE_MOD_FOLDER_SUFFIX);
 }
 fs::path GetRemoteModFolderPath()
 {

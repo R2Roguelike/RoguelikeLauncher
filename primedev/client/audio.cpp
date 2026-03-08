@@ -325,6 +325,7 @@ MilesStopAll_Type MilesStopAll;
 
 void CustomAudioManager::ClearAudioOverrides()
 {
+	return;
 	if (m_loadedAudioOverrides.size() > 0 || m_loadedAudioOverridesRegex.size() > 0)
 	{
 		// stop all miles sounds beforehand
