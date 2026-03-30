@@ -6,6 +6,7 @@
 #include "client/r2client.h"
 #include "server/r2server.h"
 #include "engine/r2engine.h"
+#include <random>
 
 std::map<size_t, std::string> sv_modWeaponVarStrings;
 std::map<size_t, std::string> cl_modWeaponVarStrings;
@@ -233,6 +234,28 @@ ADD_SQFUNC("void", ModWeaponVars_SetFloat, "entity weapon, int weaponVar, float 
 	return SQRESULT_NULL;
 }
 
+ADD_SQFUNC("int", PRandomInt_Internal, "int seed, int iterations", "", ScriptContext::SERVER | ScriptContext::CLIENT | ScriptContext::UI)
+{
+	static int curSeed = -1;
+	static int curIterations = -1;
+	static std::mt19937 mt = std::mt19937(0);
+	int seed = g_pSquirrel<context>->getinteger(sqvm, 1);
+	int iterations = g_pSquirrel<context>->getinteger(sqvm, 2);
+
+	if (seed != curSeed || iterations != curIterations)
+	{
+		mt = std::mt19937(seed);
+		mt.discard(iterations);
+		curSeed = seed;
+		curIterations = iterations;
+	}
+
+	g_pSquirrel<context>->pushinteger(sqvm, mt());
+	curIterations++;
+
+	return SQRESULT_NOTNULL;
+}
+
 ADD_SQFUNC("int", ModWeaponVars_GetType, "int eWeaponVar", "", ScriptContext::SERVER | ScriptContext::CLIENT)
 {
 	int weaponVar = g_pSquirrel<context>->getinteger(sqvm, 1);
@@ -292,6 +315,46 @@ ADD_SQFUNC("void", ModWeaponVars_SetString, "entity weapon, int weaponVar, strin
 		*(const char**)(&weapon->weaponVars[varInfo->offset]) = cl_modWeaponVarStrings[valueHash].c_str();
 	}
 		
+	return SQRESULT_NULL;
+}
+
+ADD_SQFUNC("void", ModWeaponVars_SetVector, "entity weapon, int weaponVar, vector value", "", ScriptContext::SERVER | ScriptContext::CLIENT)
+{
+	void** ent = g_pSquirrel<context>->getentity<void*>(sqvm, 1);
+	if (!IsWeapon<context>(ent))
+	{
+		g_pSquirrel<context>->raiseerror(sqvm, "Entity is not a weapon");
+		return SQRESULT_ERROR;
+	}
+	int weaponVar = g_pSquirrel<context>->getinteger(sqvm, 2);
+	Vector3 value = g_pSquirrel<context>->getvector(sqvm, 3);
+	if (weaponVar < 1 || weaponVar > WEAPON_VAR_COUNT) // weapon vars start at one and end at 725 inclusive
+	{
+		// invalid weapon var index
+		g_pSquirrel<context>->raiseerror(sqvm, "Invalid eWeaponVar!");
+		return SQRESULT_ERROR;
+	}
+
+	const WeaponVarInfo* varInfo = &weaponVarArray<context>[weaponVar];
+
+	if (varInfo->type != WVT_VECTOR)
+	{
+		// invalid type used
+		g_pSquirrel<context>->raiseerror(sqvm, "eWeaponVar is not a string!");
+		return SQRESULT_ERROR;
+	}
+
+	if (context == ScriptContext::SERVER)
+	{
+		CWeaponX* weapon = (CWeaponX*)ent;
+		*(Vector3*)(&weapon->weaponVars[varInfo->offset]) = value;
+	}
+	else // if (context == ScriptContext::CLIENT)
+	{
+		C_WeaponX* weapon = (C_WeaponX*)ent;
+		*(Vector3*)(&weapon->weaponVars[varInfo->offset]) = value;
+	}
+
 	return SQRESULT_NULL;
 }
 

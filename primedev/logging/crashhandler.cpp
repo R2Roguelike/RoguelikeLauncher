@@ -298,7 +298,7 @@ void CCrashHandler::ShowPopUpMessage()
 	m_bHasShownCrashMsg = true;
 
 	std::string svMessage = fmt::format(
-		"Roguelike has crashed! Crash info can be found at {}/logs!\n\n{}\n{} + {}",
+		"Roguelike has crashed! Crash info can be found at %appdata%/R2Roguelike/logs!\n\n{}\n{} + {}",
 		GetRoguelikePrefix(),
 		GetExceptionString(),
 		m_svCrashedModule,
@@ -313,7 +313,7 @@ void CCrashHandler::ShowPopUpMessage()
 void CCrashHandler::FormatException()
 {
 	spdlog::error("-------------------------------------------");
-	spdlog::error("Northstar has crashed!");
+	spdlog::error("Roguelike has crashed!");
 	spdlog::error("\tVersion: {}", version);
 	if (!m_svError.empty())
 	{

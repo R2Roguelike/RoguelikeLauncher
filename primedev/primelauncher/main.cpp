@@ -207,6 +207,8 @@ void EnsureOriginStarted()
 		&pi);
 
 	std::cout << "[*] Waiting for Origin..." << std::endl;
+	std::cout << "[*] EA App wasn't started - we've booted it up for you." << std::endl;
+	std::cout << "    The game won't boot up in this state. Please restart." << std::endl;
 
 	// wait for origin process to boot
 	do
